@@ -34,6 +34,8 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
         isRunning = true;
 
     } else isRunning = false;
+
+    playerTex = IMG_LoadTexture(renderer, "assets/player.png");
 }
 
 
@@ -57,6 +59,7 @@ void Game::update() {    }
 
 void Game::render() {
     SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, playerTex, NULL, NULL);
     SDL_RenderPresent(renderer);
 }
 
