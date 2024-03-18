@@ -1,4 +1,5 @@
-#include "game.hpp"
+#include "Game.hpp"
+#include "TextureManager.hpp"
 
 
 SDL_Texture *playerTex;
@@ -36,7 +37,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 
     } else isRunning = false;
 
-    playerTex = IMG_LoadTexture(renderer, "assets/player.png");
+    playerTex = TextureManager::LoadTexture("assets/player.png", renderer);
 }
 
 
