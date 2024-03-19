@@ -4,12 +4,10 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
-using namespace std;
-
 
 class Game {
     private:
-        bool isRunning;
+        bool isRunning = false;
         SDL_Window *window;
 
     public:
