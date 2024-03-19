@@ -26,4 +26,5 @@ class Game {
         }
 
         static SDL_Renderer *renderer;
+        static SDL_Event event;
 };
