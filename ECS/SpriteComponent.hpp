@@ -13,10 +13,21 @@ class SpriteComponent : public Component {
         SDL_Texture *texture;
         SDL_Rect srcRect, destRect;
 
+        bool animated = false;
+        int frames = 0;
+        int speed = 100;
+
     public:
         SpriteComponent() = default;
 
         SpriteComponent(const char* filePath) {
+            setTexture(filePath);
+        }
+
+        SpriteComponent(const char* filePath, int nFrames, int mSpeed) {
+            animated = true;
+            frames = nFrames;
+            speed = mSpeed;
             setTexture(filePath);
         }
 
@@ -37,6 +48,10 @@ class SpriteComponent : public Component {
         }
 
         void update() override {
+            if (animated) {
+                srcRect.x = srcRect.w * static_cast<int>((SDL_GetTicks() / speed) % frames);
+            }
+            
             destRect.x = static_cast<int>(transform->position.x);
             destRect.y = static_cast<int>(transform->position.y);
             destRect.w = transform->width * transform->scale;
