@@ -1,7 +1,8 @@
 #pragma once
 
 
-#include "SDL2/SDL.h"
+#include <SDL2/SDL.h>
+
 #include "Components.hpp"
 #include "../TextureManager.hpp"
 
