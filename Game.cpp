@@ -17,6 +17,8 @@ std::vector<ColliderComponent*> Game::colliders;
 auto& player(manager.addEntity());
 auto& wall(manager.addEntity());
 
+const char* mapFile = "assets/tileset.png";
+
 enum groupLabels : std::size_t {
     groupMap,
     groupPlayers,
@@ -49,16 +51,11 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 
     Map::LoadMap("assets/map.map", 16, 16);
 
-    player.addComponent<TransformComponent>(2);
+    player.addComponent<TransformComponent>(1);
     player.addComponent<SpriteComponent>("assets/player_animations.png", true);
     player.addComponent<KeyboardController>();
     player.addComponent<ColliderComponent>("player");
     player.addGroup(groupPlayers);
-
-    wall.addComponent<TransformComponent>(300.0f, 300.0f, 300, 20, 1);
-    wall.addComponent<SpriteComponent>("assets/dirt.png");
-    wall.addComponent<ColliderComponent>("dirt");
-    wall.addGroup(groupMap);
 }
 
 
@@ -113,8 +110,8 @@ void Game::clean() {
 }
 
 
-void Game::AddTile(int id, int x, int y) {
+void Game::AddTile(int srcX, int srcY, int xpos, int ypos) {
     auto& tile(manager.addEntity());
-    tile.addComponent<TileComponent>(x, y, 32, 32, id);
+    tile.addComponent<TileComponent>(srcX, srcY, xpos, ypos, mapFile);
     tile.addGroup(groupMap);
 }
