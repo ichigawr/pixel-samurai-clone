@@ -4,6 +4,7 @@
 #include "ECS/Components.hpp"
 #include "Vector2D.hpp"
 #include "Collision.hpp"
+#include "AssetManager.hpp"
 
 
 Map *map;
@@ -13,6 +14,8 @@ SDL_Renderer* Game::renderer = nullptr;
 SDL_Event Game::event;
 
 SDL_Rect Game::camera = {0, 0, 800, 640};
+
+AssetManager *Game::assets = new AssetManager(&manager);
 
 bool Game::isRunning = false;
 
@@ -39,11 +42,14 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 
     } else isRunning = false;
 
-    map = new Map("assets/tileset.png", 2, 32);
+    assets->AddTexture("terrain", "assets/tileset.png");
+    assets->AddTexture("player", "assets/player_animations.png");
+
+    map = new Map("terrain", 2, 32);
     map->LoadMap("assets/map.map", 25, 20);
 
     player.addComponent<TransformComponent>(1);
-    player.addComponent<SpriteComponent>("assets/player_animations.png", true);
+    player.addComponent<SpriteComponent>("player", true);
     player.addComponent<KeyboardController>();
     player.addComponent<ColliderComponent>("player");
     player.addGroup(groupPlayers);
@@ -105,6 +111,9 @@ void Game::render() {
 
     for (auto& t : tiles)
         t->draw();
+    
+    for (auto& c : colliders)
+        c->draw();
 
     for (auto& p : players)
         p->draw();

@@ -6,6 +6,7 @@
 #include "Components.hpp"
 #include "../TextureManager.hpp"
 #include "Animation.hpp"
+#include "../AssetManager.hpp"
 
 
 class SpriteComponent : public Component {
@@ -31,7 +32,7 @@ class SpriteComponent : public Component {
             setTexture(filePath);
         }
 
-        SpriteComponent(const char* filePath, bool isAnimated) {
+        SpriteComponent(std::string id, bool isAnimated) {
             animated = isAnimated;
 
             Animation idle = Animation(0, 8, 100);
@@ -42,15 +43,13 @@ class SpriteComponent : public Component {
             
             Play("Idle");
 
-            setTexture(filePath);
+            setTexture(id);
         }
 
-        ~SpriteComponent() {
-            SDL_DestroyTexture(texture);
-        }
+        ~SpriteComponent() {    }
 
-        void setTexture(const char* filePath) {
-            texture = TextureManager::LoadTexture(filePath);
+        void setTexture(std::string id) {
+            texture = Game::assets->GetTexture(id);
         }
 
         void init() override {
