@@ -28,8 +28,8 @@ class SpriteComponent : public Component {
     
         SpriteComponent() = default;
 
-        SpriteComponent(const char* filePath) {
-            setTexture(filePath);
+        SpriteComponent(std::string id) {
+            setTexture(id);
         }
 
         SpriteComponent(std::string id, bool isAnimated) {

@@ -44,6 +44,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 
     assets->AddTexture("terrain", "assets/tileset.png");
     assets->AddTexture("player", "assets/player_animations.png");
+    assets->AddTexture("projectile", "assets/proj.png");
 
     map = new Map("terrain", 2, 32);
     map->LoadMap("assets/map.map", 25, 20);
@@ -53,12 +54,18 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     player.addComponent<KeyboardController>();
     player.addComponent<ColliderComponent>("player");
     player.addGroup(groupPlayers);
+
+    assets->CreateProjectile(Vector2D(600, 600), Vector2D(2, 0), 200, 2, "projectile");
+    assets->CreateProjectile(Vector2D(600, 620), Vector2D(2, 0), 200, 2, "projectile");
+    assets->CreateProjectile(Vector2D(400, 600), Vector2D(2, 1), 200, 2, "projectile");
+    assets->CreateProjectile(Vector2D(600, 600), Vector2D(2, -1), 200, 2, "projectile");
 }
 
 
 auto& tiles(manager.getGroup(Game::groupMap));
 auto& colliders(manager.getGroup(Game::groupColliders));
 auto& players(manager.getGroup(Game::groupPlayers));
+auto& projectiles(manager.getGroup(Game::groupProjectiles));
 
 
 void Game::handleEvents() {
@@ -89,6 +96,13 @@ void Game::update() {
             player.getComponent<TransformComponent>().position = playerPos;
     }
 
+    for (auto& p : projectiles) {
+        SDL_Rect progCol = p->getComponent<ColliderComponent>().collider;
+        
+        if (Collision::AABB(playerCol, progCol))
+            p->destroy();
+    }
+
     camera.x = player.getComponent<TransformComponent>().position.x - 400;
     camera.y = player.getComponent<TransformComponent>().position.y - 320;
 
@@ -111,11 +125,11 @@ void Game::render() {
 
     for (auto& t : tiles)
         t->draw();
-    
-    for (auto& c : colliders)
-        c->draw();
 
     for (auto& p : players)
+        p->draw();
+    
+    for (auto& p : projectiles)
         p->draw();
 
     SDL_RenderPresent(renderer);
