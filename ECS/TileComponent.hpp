@@ -9,6 +9,7 @@ class TileComponent : public Component {
     public:
         SDL_Texture *texture;
         SDL_Rect srcRect, destRect;
+        Vector2D position;
 
         TileComponent() = default;
 
@@ -19,6 +20,9 @@ class TileComponent : public Component {
         TileComponent(int srcX, int srcY, int xpos, int ypos, const char* filePath) {
             texture = TextureManager::LoadTexture(filePath);
 
+            position.x = xpos;
+            position.y = ypos;
+
             srcRect.x = srcX;
             srcRect.y = srcY;
             srcRect.w = srcRect.h = 32;
@@ -26,6 +30,11 @@ class TileComponent : public Component {
             destRect.x = xpos;
             destRect.y = ypos;
             destRect.w = destRect.h = 64;
+        }
+
+        void update() override {
+            destRect.x = position.x - Game::camera.x;
+            destRect.y = position.y - Game::camera.y;
         }
 
         void draw() override {
