@@ -13,7 +13,7 @@ Manager manager;
 SDL_Renderer* Game::renderer = nullptr;
 SDL_Event Game::event;
 
-SDL_Rect Game::camera = {0, 0, 800, 640};
+SDL_Rect Game::camera = {0, 0, 854, 480};
 
 AssetManager *Game::assets = new AssetManager(&manager);
 
@@ -46,8 +46,8 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     assets->AddTexture("player", "assets/player_animations.png");
     assets->AddTexture("projectile", "assets/proj.png");
 
-    map = new Map("terrain", 2, 32);
-    map->LoadMap("assets/map.map", 25, 20);
+    map = new Map("terrain", 1, 64);
+    map->LoadMap("assets/map.map", 42, 9);
 
     player.addComponent<TransformComponent>(1);
     player.addComponent<SpriteComponent>("player", true);
@@ -103,8 +103,8 @@ void Game::update() {
             p->destroy();
     }
 
-    camera.x = player.getComponent<TransformComponent>().position.x - 400;
-    camera.y = player.getComponent<TransformComponent>().position.y - 320;
+    camera.x = player.getComponent<TransformComponent>().position.x - 427;
+    camera.y = player.getComponent<TransformComponent>().position.y - 240;
 
     if (camera.x < 0)
         camera.x = 0;
@@ -126,11 +126,14 @@ void Game::render() {
     for (auto& t : tiles)
         t->draw();
 
+    // for (auto& c : colliders)
+    //     c->draw();
+
     for (auto& p : players)
         p->draw();
     
-    for (auto& p : projectiles)
-        p->draw();
+    // for (auto& p : projectiles)
+    //     p->draw();
 
     SDL_RenderPresent(renderer);
 }

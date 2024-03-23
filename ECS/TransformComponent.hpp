@@ -20,8 +20,8 @@ class TransformComponent : public Component {
         }
 
         TransformComponent(int sc) {
-            position.x = 400;
-            position.y = 320;
+            position.x = 427;
+            position.y = 240;
             scale = sc;
         }
     
