@@ -34,6 +34,7 @@ class KeyboardController : public Component {
                     case SDLK_d:
                         transform->velocity.x = 1;
                         sprite->Play("Run");
+                        sprite->spriteFlip = SDL_FLIP_NONE;
                         break;
                     default:
                         break;
@@ -49,7 +50,6 @@ class KeyboardController : public Component {
                     case SDLK_a:
                         transform->velocity.x = 0;
                         sprite->Play("Idle");
-                        sprite->spriteFlip = SDL_FLIP_NONE;
                         break;
                     case SDLK_s:
                         transform->velocity.y = 0;

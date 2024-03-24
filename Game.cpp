@@ -13,7 +13,9 @@ Manager manager;
 SDL_Renderer* Game::renderer = nullptr;
 SDL_Event Game::event;
 
-SDL_Rect Game::camera = {0, 0, 854, 480};
+// camera.w = width_of_map - width_of_window
+// camera.h = height_of_map - height_of_window
+SDL_Rect Game::camera = {0, 0, 2218, 224};
 
 AssetManager *Game::assets = new AssetManager(&manager);
 
@@ -47,7 +49,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     assets->AddTexture("projectile", "assets/proj.png");
 
     map = new Map("terrain", 1, 64);
-    map->LoadMap("assets/map.map", 42, 9);
+    map->LoadMap("assets/map.map", 48, 11);
 
     player.addComponent<TransformComponent>(1);
     player.addComponent<SpriteComponent>("player", true);
@@ -93,7 +95,7 @@ void Game::update() {
         SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
         
         if (Collision::AABB(playerCol, cCol))
-            player.getComponent<TransformComponent>().position = playerPos;
+            player.getComponent<TransformComponent>().position.y = playerPos.y;
     }
 
     for (auto& p : projectiles) {
@@ -104,7 +106,7 @@ void Game::update() {
     }
 
     camera.x = player.getComponent<TransformComponent>().position.x - 427;
-    camera.y = player.getComponent<TransformComponent>().position.y - 240;
+    camera.y = player.getComponent<TransformComponent>().position.y - 240 - 112;
 
     if (camera.x < 0)
         camera.x = 0;

@@ -3,12 +3,10 @@
 
 
 bool Collision::AABB(const SDL_Rect& recA, const SDL_Rect& recB) {
-    // return SDL_HasIntersection(&recA, &recB);
     if (recA.x + recA.w >= recB.x &&
         recB.x + recB.w >= recA.x &&
-        recA.y + recA.h >= recB.y &&
-        recB.y + recB.h >= recA.y)
-        return true;
+        recA.y + recA.h >= recB.y - 3)
+            return true;
 
     return false;
 }
