@@ -13,7 +13,7 @@ class TransformComponent : public Component {
         int width = 64;
         int scale = 1;
 
-        int speed = 3;
+        int speed = 7;
 
         TransformComponent() {
             position.Zero();
