@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     
     game = new Game();
     
-    game->init("Horzion's Fall", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 854, 480, false);
+    game->init("Horzion's Fall", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 960, 540, false);
     
     while (game->running()) {
         frameStart = SDL_GetTicks();

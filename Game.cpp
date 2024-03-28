@@ -15,7 +15,8 @@ SDL_Event Game::event;
 
 // camera.w = width_of_map - width_of_window
 // camera.h = height_of_map - height_of_window
-SDL_Rect Game::camera = {0, 0, 2218, 224};
+SDL_Rect Game::camera = {0, 0, 1680, 228};
+SDL_Rect background = {0, 0, 960, 540};
 
 AssetManager *Game::assets = new AssetManager(&manager);
 
@@ -45,11 +46,12 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     } else isRunning = false;
 
     assets->AddTexture("terrain", "assets/tileset.png");
+    assets->AddTexture("background", "assets/background.png");
     assets->AddTexture("player", "assets/player_animations.png");
     assets->AddTexture("projectile", "assets/proj.png");
 
-    map = new Map("terrain", 1, 64);
-    map->LoadMap("assets/map.map", 48, 11);
+    map = new Map("terrain", 1, 48);
+    map->LoadMap("assets/map.map", 55, 16);
 
     player.addComponent<TransformComponent>(1);
     player.addComponent<SpriteComponent>("player", true);
@@ -105,8 +107,8 @@ void Game::update() {
             p->destroy();
     }
 
-    camera.x = player.getComponent<TransformComponent>().position.x - 427;
-    camera.y = player.getComponent<TransformComponent>().position.y - 240 - 112;
+    camera.x = player.getComponent<TransformComponent>().position.x - 480;
+    camera.y = player.getComponent<TransformComponent>().position.y - 270 - 120;
 
     if (camera.x < 0)
         camera.x = 0;
@@ -124,6 +126,8 @@ void Game::update() {
 
 void Game::render() {
     SDL_RenderClear(renderer);
+
+    TextureManager::Draw(assets->GetTexture("background"), background, background, SDL_FLIP_NONE);
 
     for (auto& t : tiles)
         t->draw();
