@@ -26,7 +26,6 @@ void Map::LoadMap(std::string path, int sizeX, int sizeY) {
     for (int y = 0; y < sizeY; y++)
         for (int x = 0; x < sizeX; x++) {
             mapFile.get(tile);
-
             srcY = atoi(&tile) * tileSize;
             mapFile.get(tile);
             srcX = atoi(&tile) * tileSize;

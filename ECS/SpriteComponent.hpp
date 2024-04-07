@@ -35,11 +35,13 @@ class SpriteComponent : public Component {
         SpriteComponent(std::string id, bool isAnimated) {
             animated = isAnimated;
 
-            Animation idle = Animation(0, 8, 100);
-            Animation run = Animation(1, 8, 100);
+            Animation idle = Animation(0, 8, 100, 64, 64);
+            Animation run = Animation(1, 8, 100, 64, 64);
+            Animation attack = Animation(2, 4, 50, 150, 86);
 
             animations.emplace("Idle", idle);
             animations.emplace("Run", run);
+            animations.emplace("Attack", attack);
             
             Play("Idle");
 
@@ -66,11 +68,14 @@ class SpriteComponent : public Component {
             }
 
             srcRect.y = animIndex * transform->height;
-            
+
             destRect.x = static_cast<int>(transform->position.x) - Game::camera.x;
-            destRect.y = static_cast<int>(transform->position.y) - Game::camera.y;
-            destRect.w = transform->width * transform->scale;
-            destRect.h = transform->height * transform->scale;
+            destRect.y = static_cast<int>(transform->position.y) - 86 + 64 - Game::camera.y;
+            
+            // destRect.x = static_cast<int>(transform->position.x) - Game::camera.x;
+            // destRect.y = static_cast<int>(transform->position.y) - Game::camera.y;
+            // destRect.w = transform->width * transform->scale;
+            // destRect.h = transform->height * transform->scale;
         }
 
         void draw() override {
@@ -81,5 +86,11 @@ class SpriteComponent : public Component {
             frames = animations[animName].frames;
             animIndex = animations[animName].index;
             speed = animations[animName].speed;
+            srcRect.w = animations[animName].frameWidth;
+            srcRect.h = animations[animName].frameHeight;
+            // destRect.x = static_cast<int>(transform->position.x) - 155 + 64 - Game::camera.x;
+            // destRect.y = static_cast<int>(transform->position.y) - 86 + 64 - Game::camera.y;
+            destRect.w = animations[animName].frameWidth;
+            destRect.h = animations[animName].frameHeight;
         }
 };
