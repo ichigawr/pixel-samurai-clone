@@ -7,7 +7,6 @@ struct Animation {
     int speed;
     int frameWidth;
     int frameHeight;
-    int currentFrame;
 
     Animation() {
         index = 0;
@@ -23,16 +22,5 @@ struct Animation {
         speed = s;
         frameWidth = w;
         frameHeight = h;
-        currentFrame = 0;
-    }
-
-    bool isFinished() {
-        if (currentFrame >= 12) {
-            currentFrame = 0;
-            return true;
-        }
-
-        currentFrame++;
-        return false;
     }
 };

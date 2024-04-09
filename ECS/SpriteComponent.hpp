@@ -21,6 +21,8 @@ class SpriteComponent : public Component {
 
     public:
         int animIndex = 0;
+        const char* currentAni;
+        Uint32 aniStartTime;
 
         std::map<const char*, Animation> animations;
 
@@ -64,33 +66,36 @@ class SpriteComponent : public Component {
 
         void update() override {
             if (animated) {
-                srcRect.x = srcRect.w * static_cast<int>((SDL_GetTicks() / speed) % frames);
+                srcRect.x = srcRect.w * static_cast<int>(((SDL_GetTicks() - aniStartTime) / speed) % frames);
             }
 
             srcRect.y = animIndex * transform->height;
 
+            srcRect.w = animations[currentAni].frameWidth;
+            srcRect.h = animations[currentAni].frameHeight;
+
             destRect.x = static_cast<int>(transform->position.x) - Game::camera.x;
-            destRect.y = static_cast<int>(transform->position.y) - 86 + 64 - Game::camera.y;
-            
-            // destRect.x = static_cast<int>(transform->position.x) - Game::camera.x;
-            // destRect.y = static_cast<int>(transform->position.y) - Game::camera.y;
-            // destRect.w = transform->width * transform->scale;
-            // destRect.h = transform->height * transform->scale;
+
+            if (spriteFlip == SDL_FLIP_HORIZONTAL)
+                destRect.x -= animations[currentAni].frameWidth - 64;
+
+            destRect.y = static_cast<int>(transform->position.y) - Game::camera.y - animations[currentAni].frameHeight + 64;
+
+            destRect.w = animations[currentAni].frameWidth * transform->scale;
+            destRect.h = animations[currentAni].frameHeight * transform->scale;
         }
 
         void draw() override {
             TextureManager::Draw(texture, srcRect, destRect, spriteFlip);
         }
 
-        void Play(const char* animName) {
-            frames = animations[animName].frames;
-            animIndex = animations[animName].index;
-            speed = animations[animName].speed;
-            srcRect.w = animations[animName].frameWidth;
-            srcRect.h = animations[animName].frameHeight;
-            // destRect.x = static_cast<int>(transform->position.x) - 155 + 64 - Game::camera.x;
-            // destRect.y = static_cast<int>(transform->position.y) - 86 + 64 - Game::camera.y;
-            destRect.w = animations[animName].frameWidth;
-            destRect.h = animations[animName].frameHeight;
+        void Play(const char* aniName) {
+            currentAni = aniName;
+
+            frames = animations[aniName].frames;
+            animIndex = animations[aniName].index;
+            speed = animations[aniName].speed;
+
+            aniStartTime = SDL_GetTicks();
         }
 };
