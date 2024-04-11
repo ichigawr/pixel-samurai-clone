@@ -20,9 +20,9 @@ class SpriteComponent : public Component {
         int speed = 100;
 
     public:
-        int animIndex = 0;
+        int aniIndex = 0;
         const char* currentAni;
-        Uint32 aniStartTime;
+        Uint32 aniStartTime = 0;
 
         std::map<const char*, Animation> animations;
 
@@ -65,11 +65,10 @@ class SpriteComponent : public Component {
         }
 
         void update() override {
-            if (animated) {
+            if (animated)
                 srcRect.x = srcRect.w * static_cast<int>(((SDL_GetTicks() - aniStartTime) / speed) % frames);
-            }
 
-            srcRect.y = animIndex * transform->height;
+            srcRect.y = aniIndex * transform->height;
 
             srcRect.w = animations[currentAni].frameWidth;
             srcRect.h = animations[currentAni].frameHeight;
@@ -93,9 +92,10 @@ class SpriteComponent : public Component {
             currentAni = aniName;
 
             frames = animations[aniName].frames;
-            animIndex = animations[aniName].index;
+            aniIndex = animations[aniName].index;
             speed = animations[aniName].speed;
 
-            aniStartTime = SDL_GetTicks();
+            if (aniIndex >= 2)
+                aniStartTime = SDL_GetTicks();
         }
 };
