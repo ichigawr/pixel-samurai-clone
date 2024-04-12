@@ -6,6 +6,9 @@
 #include <vector>
 
 
+static const int WINDOW_WIDTH = 960;
+static const int WINDOW_HEIGHT = 540;
+
 class AssetManager;
 class ColliderComponent;
 
@@ -39,6 +42,7 @@ class Game {
             groupMap,
             groupPlayers,
             groupColliders,
-            groupProjectiles
+            groupProjectiles,
+            groupGrass
         };
 };
