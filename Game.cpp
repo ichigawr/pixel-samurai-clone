@@ -53,9 +53,15 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 
     map->LoadMap("assets/map.map");
     grass->LoadMap("assets/grass.map");
+        
+    std::map<const char*, Animation> playerAnimations = {
+        {"Idle", Animation(0, 8, 100, 64, 64)},
+        {"Run", Animation(1, 8, 100, 64, 64)},
+        {"Attack", Animation(2, 4, 50, 150, 86)}
+    };
 
     player.addComponent<TransformComponent>(1);
-    player.addComponent<SpriteComponent>("player", true);
+    player.addComponent<SpriteComponent>("player", true, playerAnimations);
     player.addComponent<KeyboardController>();
     player.addComponent<ColliderComponent>("player");
     player.addGroup(groupPlayers);

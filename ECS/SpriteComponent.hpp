@@ -31,19 +31,13 @@ class SpriteComponent : public Component {
         SpriteComponent() = default;
 
         SpriteComponent(std::string id) {
+            animated = false;
             setTexture(id);
         }
 
-        SpriteComponent(std::string id, bool isAnimated) {
+        SpriteComponent(std::string id, bool isAnimated, std::map<const char*, Animation> objectAnimations) {
             animated = isAnimated;
-
-            Animation idle = Animation(0, 8, 100, 64, 64);
-            Animation run = Animation(1, 8, 100, 64, 64);
-            Animation attack = Animation(2, 4, 50, 150, 86);
-
-            animations.emplace("Idle", idle);
-            animations.emplace("Run", run);
-            animations.emplace("Attack", attack);
+            animations = objectAnimations;
             
             Play("Idle");
 
