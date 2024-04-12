@@ -4,8 +4,13 @@
 #include "../Vector2D.hpp"
 
 
+static const float DEFAULT_X_POSITION = 1288;
+static const float DEFAULT_Y_POSITION = 416;
+
+
 class TransformComponent : public Component {
     public:
+    
         Vector2D position;
         Vector2D velocity;
 
@@ -20,8 +25,8 @@ class TransformComponent : public Component {
         }
 
         TransformComponent(int sc) {
-            position.x = 1288;
-            position.y = 416;
+            position.x = DEFAULT_X_POSITION;
+            position.y = DEFAULT_Y_POSITION;
             scale = sc;
         }
     

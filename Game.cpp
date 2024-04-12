@@ -18,14 +18,13 @@ SDL_Event Game::event;
 SDL_Rect Game::camera = {0, 0, map->getScaledSize() * map->getSizeX() - WINDOW_WIDTH, map->getScaledSize() * map->getSizeY() - WINDOW_HEIGHT};
 SDL_Rect background = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
 
-
 AssetManager *Game::assets = new AssetManager(&manager);
 
 bool Game::isRunning = false;
 
 auto& player(manager.addEntity());
 
-int fallY = 416;
+float outOfBound = DEFAULT_Y_POSITION;
 
 Game::Game() {    }
 Game::~Game() {    }
@@ -70,22 +69,16 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 
 auto& tiles(manager.getGroup(Game::groupMap));
 auto& grasses(manager.getGroup(Game::groupGrass));
-auto& colliders(manager.getGroup(Game::groupColliders));
 auto& players(manager.getGroup(Game::groupPlayers));
-auto& projectiles(manager.getGroup(Game::groupProjectiles));
+// auto& colliders(manager.getGroup(Game::groupColliders));
+// auto& projectiles(manager.getGroup(Game::groupProjectiles));
 
 
 void Game::handleEvents() {
     SDL_PollEvent(&event);
-    
-    switch (event.type) {
-        case SDL_QUIT:
-            isRunning = false;
-            break;
 
-        default:
-            break;
-    }
+    if (event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE)
+        isRunning = false;
 }
 
 
@@ -96,26 +89,26 @@ void Game::update() {
     manager.refresh();
     manager.update();
 
-    for (auto& c : colliders) {
-        SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
+    // for (auto& c : colliders) {
+    //     SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
         
-        if (Collision::AABB(playerCol, cCol))
-            player.getComponent<TransformComponent>().position.y = playerPos.y;
-    }
+    //     if (Collision::AABB(playerCol, cCol))
+    //         player.getComponent<TransformComponent>().position.y = playerPos.y;
+    // }
         
     float playerPosX = player.getComponent<TransformComponent>().position.x;
 
-    if ((playerPosX <= 208 || playerPosX >= 2320) && fallY <= 768) {
-        fallY += 20;
-        player.getComponent<TransformComponent>().position.y = fallY;
+    if ((playerPosX <= 240 || playerPosX >= 2320) && outOfBound <= 768) {
+        outOfBound += 20;
+        player.getComponent<TransformComponent>().position.y = outOfBound;
     }
 
-    for (auto& p : projectiles) {
-        SDL_Rect progCol = p->getComponent<ColliderComponent>().collider;
+    // for (auto& p : projectiles) {
+    //     SDL_Rect progCol = p->getComponent<ColliderComponent>().collider;
         
-        if (Collision::AABB(playerCol, progCol))
-            p->destroy();
-    }
+    //     if (Collision::AABB(playerCol, progCol))
+    //         p->destroy();
+    // }
 
     camera.x = player.getComponent<TransformComponent>().position.x - WINDOW_WIDTH / 2;
     camera.y = player.getComponent<TransformComponent>().position.y - WINDOW_HEIGHT / 2 - 120;

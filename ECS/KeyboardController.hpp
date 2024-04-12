@@ -112,8 +112,5 @@ class KeyboardController : public Component {
                         break;
                 }
             }
-
-            if (Game::event.key.keysym.sym == SDLK_ESCAPE)
-                Game::isRunning = false;
         }
 };
