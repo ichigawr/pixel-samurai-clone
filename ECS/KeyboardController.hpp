@@ -29,7 +29,7 @@ class KeyboardController : public Component {
                     lastTick = currentTick;
                 }
 
-                if (currentFrame >= sprite->animations[currentAni].frames) {
+                if (currentFrame > sprite->animations[currentAni].frames) {
                     currentFrame = 0;
                     isAnimating = false;
 
