@@ -25,8 +25,8 @@ class KeyboardController : public Component {
             sprite = &entity->getComponent<SpriteComponent>();
 
             coolDown = {
-                {"Dash", 500},
-                {"Block", 300}
+                {"Block", 300},
+                {"Dash", 500}
             };
         }
 

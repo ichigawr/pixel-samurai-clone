@@ -79,8 +79,9 @@ class SpriteComponent : public Component {
 
             destRect.x = static_cast<int>(transform->position.x) - Game::camera.x;
 
-            if (spriteFlip == SDL_FLIP_HORIZONTAL)
-                destRect.x -= animations[currentAni].frameWidth - 64;
+            if (spriteFlip == SDL_FLIP_HORIZONTAL) {
+                destRect.x -= animations[currentAni].frameWidth - 64 + animations[currentAni].anchor;
+            } else destRect.x += animations[currentAni].anchor;
 
             destRect.y = static_cast<int>(transform->position.y) - Game::camera.y - animations[currentAni].frameHeight + 48 + animations[currentAni].padding;
 

@@ -55,15 +55,15 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     grass->LoadMap("assets/grass.map");
         
     std::map<std::string, Animation> playerAnimations = {
-        {"Attack 1", Animation(4, 100, 126, 57, 3)},
-        {"Attack 2", Animation(4, 100, 126, 63, 12)},
-        {"Block", Animation(1, 300, 67, 48, 6)},
-        {"Dash", Animation(3, 100, 88, 45, 0)},
-        {"Idle", Animation(3, 200, 48, 48, 0)},
-        {"Run", Animation(3, 200, 48, 51, 0)}
+        {"Attack 1", Animation(4, 100, 126, 57, 3, -36)},
+        {"Attack 2", Animation(4, 100, 126, 63, 12,-36)},
+        {"Block", Animation(1, 300, 67, 48, 6, 0)},
+        {"Dash", Animation(3, 100, 88, 45, 0, -40)},
+        {"Idle", Animation(3, 200, 48, 48, 0, 0)},
+        {"Run", Animation(3, 200, 48, 51, 0, 0)}
     };
 
-    player.addComponent<TransformComponent>(1, 3);
+    player.addComponent<TransformComponent>(1, 4);
     player.addComponent<SpriteComponent>("player", true, playerAnimations);
     player.addComponent<KeyboardController>();
     player.addComponent<ColliderComponent>("player");

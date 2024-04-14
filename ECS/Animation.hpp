@@ -8,6 +8,7 @@ struct Animation {
     int frameWidth;
     int frameHeight;
     int padding;
+    int anchor;
 
     Animation() {
         index = 0;
@@ -17,11 +18,12 @@ struct Animation {
         frameHeight = 48;
     }
 
-    Animation(int f, int s, int w, int h, int pd) {
+    Animation(int f, int s, int w, int h, int p, int a) {
         frames = f;
         speed = s;
         frameWidth = w;
         frameHeight = h;
-        padding = pd;
+        padding = p;
+        anchor = a;
     }
 };
