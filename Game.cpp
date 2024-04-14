@@ -54,37 +54,45 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     map->LoadMap("assets/map.map");
     grass->LoadMap("assets/grass.map");
         
-    std::map<const char*, Animation> playerAnimations = {
-        {"Idle", Animation(0, 8, 100, 64, 64)},
-        {"Run", Animation(1, 8, 100, 64, 64)},
-        {"Attack", Animation(2, 4, 50, 150, 86)}
+    std::map<std::string, Animation> playerAnimations = {
+        {"Attack 1", Animation(4, 100, 126, 57, 3)},
+        {"Attack 2", Animation(4, 100, 126, 63, 12)},
+        {"Block", Animation(1, 300, 67, 48, 6)},
+        {"Dash", Animation(3, 100, 88, 45, 0)},
+        {"Idle", Animation(3, 200, 48, 48, 0)},
+        {"Run", Animation(3, 200, 48, 51, 0)}
     };
 
-    player.addComponent<TransformComponent>(1);
+    player.addComponent<TransformComponent>(1, 3);
     player.addComponent<SpriteComponent>("player", true, playerAnimations);
     player.addComponent<KeyboardController>();
     player.addComponent<ColliderComponent>("player");
     player.addGroup(groupPlayers);
-
-    // assets->CreateProjectile(Vector2D(600, 600), Vector2D(2, 0), 200, 2, "projectile");
-    // assets->CreateProjectile(Vector2D(600, 620), Vector2D(2, 0), 200, 2, "projectile");
-    // assets->CreateProjectile(Vector2D(400, 600), Vector2D(2, 1), 200, 2, "projectile");
-    // assets->CreateProjectile(Vector2D(600, 600), Vector2D(2, -1), 200, 2, "projectile");
 }
 
 
 auto& tiles(manager.getGroup(Game::groupMap));
 auto& grasses(manager.getGroup(Game::groupGrass));
 auto& players(manager.getGroup(Game::groupPlayers));
-// auto& colliders(manager.getGroup(Game::groupColliders));
-// auto& projectiles(manager.getGroup(Game::groupProjectiles));
+auto& colliders(manager.getGroup(Game::groupColliders));
 
 
 void Game::handleEvents() {
     SDL_PollEvent(&event);
 
-    if (event.type == SDL_QUIT || event.key.keysym.sym == SDLK_ESCAPE)
-        isRunning = false;
+    switch (event.type) {
+        case SDL_QUIT :
+            isRunning = false;
+            break;
+
+        case SDL_KEYDOWN :
+            if (event.key.keysym.sym == SDLK_ESCAPE)
+                isRunning = false;
+            break;
+
+        default:
+            break;
+	}
 }
 
 
@@ -95,12 +103,12 @@ void Game::update() {
     manager.refresh();
     manager.update();
 
-    // for (auto& c : colliders) {
-    //     SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
+    for (auto& c : colliders) {
+        SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
         
-    //     if (Collision::AABB(playerCol, cCol))
-    //         player.getComponent<TransformComponent>().position.y = playerPos.y;
-    // }
+        if (Collision::AABB(playerCol, cCol))
+            player.getComponent<TransformComponent>().position.y = playerPos.y;
+    }
         
     float playerPosX = player.getComponent<TransformComponent>().position.x;
 
@@ -146,9 +154,6 @@ void Game::render() {
 
     for (auto& g : grasses)
         g->draw();
-    
-    // for (auto& p : projectiles)
-    //     p->draw();
 
     SDL_RenderPresent(renderer);
 }

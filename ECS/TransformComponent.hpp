@@ -5,7 +5,7 @@
 
 
 static const float DEFAULT_X_POSITION = 1288;
-static const float DEFAULT_Y_POSITION = 416;
+static const float DEFAULT_Y_POSITION = 432;
 
 
 class TransformComponent : public Component {
@@ -14,8 +14,8 @@ class TransformComponent : public Component {
         Vector2D position;
         Vector2D velocity;
 
-        int height = 64;
-        int width = 64;
+        int height = 48;
+        int width = 48;
         int scale = 1;
 
         int speed = 7;
@@ -28,6 +28,13 @@ class TransformComponent : public Component {
             position.x = DEFAULT_X_POSITION;
             position.y = DEFAULT_Y_POSITION;
             scale = sc;
+        }
+
+        TransformComponent(int sc, int sp) {
+            position.x = DEFAULT_X_POSITION;
+            position.y = DEFAULT_Y_POSITION;
+            scale = sc;
+            speed = sp;
         }
     
         TransformComponent(float x, float y) {

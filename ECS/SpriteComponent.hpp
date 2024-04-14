@@ -21,10 +21,11 @@ class SpriteComponent : public Component {
 
     public:
         int aniIndex = 0;
-        const char* currentAni;
+        std::string currentAni;
         Uint32 aniStartTime = 0;
 
-        std::map<const char*, Animation> animations;
+        std::map<std::string, Animation> animations;
+        std::vector<int> srcY;
 
         SDL_RendererFlip spriteFlip = SDL_FLIP_NONE;
     
@@ -35,9 +36,18 @@ class SpriteComponent : public Component {
             setTexture(id);
         }
 
-        SpriteComponent(std::string id, bool isAnimated, std::map<const char*, Animation> objectAnimations) {
+        SpriteComponent(std::string id, bool isAnimated, std::map<std::string, Animation> objectAnimations) {
             animated = isAnimated;
             animations = objectAnimations;
+            
+            srcY.resize(animations.size());
+            srcY[0] = 0;
+
+            int i = 1;
+            for (auto it = animations.begin(); it != animations.end(); it++, i++) {
+                it->second.index = i - 1;
+                srcY[i] = srcY[i - 1] + it->second.frameHeight;
+            }
             
             Play("Idle");
 
@@ -62,7 +72,7 @@ class SpriteComponent : public Component {
             if (animated)
                 srcRect.x = srcRect.w * static_cast<int>(((SDL_GetTicks() - aniStartTime) / speed) % frames);
 
-            srcRect.y = aniIndex * transform->height;
+            srcRect.y = srcY[aniIndex];
 
             srcRect.w = animations[currentAni].frameWidth;
             srcRect.h = animations[currentAni].frameHeight;
@@ -72,7 +82,7 @@ class SpriteComponent : public Component {
             if (spriteFlip == SDL_FLIP_HORIZONTAL)
                 destRect.x -= animations[currentAni].frameWidth - 64;
 
-            destRect.y = static_cast<int>(transform->position.y) - Game::camera.y - animations[currentAni].frameHeight + 64;
+            destRect.y = static_cast<int>(transform->position.y) - Game::camera.y - animations[currentAni].frameHeight + 48 + animations[currentAni].padding;
 
             destRect.w = animations[currentAni].frameWidth * transform->scale;
             destRect.h = animations[currentAni].frameHeight * transform->scale;
@@ -82,14 +92,14 @@ class SpriteComponent : public Component {
             TextureManager::Draw(texture, srcRect, destRect, spriteFlip);
         }
 
-        void Play(const char* aniName) {
+        void Play(std::string aniName) {
             currentAni = aniName;
 
             frames = animations[aniName].frames;
             aniIndex = animations[aniName].index;
             speed = animations[aniName].speed;
 
-            if (aniIndex >= 2)
+            if (aniIndex <= animations.size() - 2)
                 aniStartTime = SDL_GetTicks();
         }
 };
