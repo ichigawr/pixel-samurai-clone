@@ -38,22 +38,6 @@ void Map::LoadMap(std::string path) {
         }
     }
     
-    mapFile.ignore();
-
-    for (int y = 0; y < sizeY; y++) {
-        for (int x = 0; x < sizeX; x++) {
-            mapFile.get(tile);
-
-            if (tile == '1') {
-                auto& tCol(manager.addEntity());
-                tCol.addComponent<ColliderComponent>("terrain", x * scaledSize, y * scaledSize, scaledSize);
-                tCol.addGroup(Game::groupColliders);
-            }
-
-            mapFile.ignore();
-        }
-    }
-    
     mapFile.close();
 }
 

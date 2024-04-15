@@ -4,7 +4,6 @@
 #include "Map.hpp"
 #include "ECS/Components.hpp"
 #include "Vector2D.hpp"
-#include "Collision.hpp"
 #include "AssetManager.hpp"
 
 
@@ -25,8 +24,6 @@ bool Game::isRunning = false;
 
 Entity& player(manager.addEntity());
 Enemy* enemy = new Enemy(&manager, player);
-
-float outOfBound = DEFAULT_Y_POSITION;
 
 Game::Game() {    }
 Game::~Game() {    }
@@ -51,7 +48,6 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     assets->AddTexture("grass", "assets/grass.png");
     assets->AddTexture("background", "assets/background.png");
     assets->AddTexture("player", "assets/player_animations.png");
-    assets->AddTexture("projectile", "assets/proj.png");
     assets->AddTexture("enemy", "assets/boss1_animations.png");
 
     map->LoadMap("assets/map.map");
@@ -60,7 +56,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     std::map<std::string, Animation> playerAnimations = {
         {"Attack 1", Animation(4, 100, 126, 57,  -3, -36)},
         {"Attack 2", Animation(4, 100, 126, 63, -12, -36)},
-        {"Block"   , Animation(1, 300,  67, 48,  -6,   0)},
+        {"Block"   , Animation(1, 200,  67, 48,  -6,   0)},
         {"Dash"    , Animation(3, 100,  88, 45,   0, -40)},
         {"Die"     , Animation(3, 200,  63, 51,  -3, -15)},
         {"Idle"    , Animation(3, 200,  48, 48,   0,   0)},
@@ -71,7 +67,6 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     player.addComponent<TransformComponent>(1, 7);
     player.addComponent<SpriteComponent>("player", true, playerAnimations);
     player.addComponent<KeyboardController>();
-    player.addComponent<ColliderComponent>("player");
     player.addGroup(groupPlayers);
 
     enemy->init();
@@ -82,7 +77,6 @@ auto& tiles(manager.getGroup(Game::groupMap));
 auto& grasses(manager.getGroup(Game::groupGrass));
 auto& players(manager.getGroup(Game::groupPlayers));
 auto& enemies(manager.getGroup(Game::groupEnemies));
-auto& colliders(manager.getGroup(Game::groupColliders));
 
 
 void Game::handleEvents() {
@@ -105,7 +99,6 @@ void Game::handleEvents() {
 
 
 void Game::update() {
-    SDL_Rect playerCol = player.getComponent<ColliderComponent>().collider;
     Vector2D playerPos = player.getComponent<TransformComponent>().position;
 
     enemy->update();
@@ -113,18 +106,9 @@ void Game::update() {
     manager.refresh();
     manager.update();
 
-    for (auto& c : colliders) {
-        SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
-        
-        if (Collision::AABB(playerCol, cCol))
-            player.getComponent<TransformComponent>().position.y = playerPos.y;
-    }
-        
-    float playerPosX = player.getComponent<TransformComponent>().position.x;
-
-    if ((playerPosX <= 240 || playerPosX >= 2320) && outOfBound <= 768) {
-        outOfBound += 20;
-        player.getComponent<TransformComponent>().position.y = outOfBound;
+    if ((playerPos.x <= 240 || playerPos.x >= 2352) && playerPos.y <= 768) {
+        player.getComponent<TransformComponent>().velocity.x = 0;
+        player.getComponent<TransformComponent>().velocity.y = 5;
     }
 
     camera.x = player.getComponent<TransformComponent>().position.x - WINDOW_WIDTH / 2;
