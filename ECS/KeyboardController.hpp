@@ -32,36 +32,11 @@ class KeyboardController : public Component {
 
         void update() override {
             if (isAnimating) {
-                Uint32 currentTick = SDL_GetTicks();
-
-                if (currentTick - lastTick >= sprite->animations[currentAni].speed) {
-                    currentFrame++;
-                    lastTick = currentTick;
-                }
-
-                if (currentFrame > sprite->animations[currentAni].frames) {
-                    currentFrame = 0;
-                    isAnimating = false;
-                    coolDownStart[currentAni] = currentTick;
-                    transform->velocity.x = 0;
-                    currentAttack = (currentAttack == "Attack 1") ? "Attack 2" : "Attack 1";
-
-                    const Uint8* state = SDL_GetKeyboardState(NULL);
-                    if (state[SDL_SCANCODE_A]) {
-                        sprite->Play("Run");
-                        sprite->spriteFlip = SDL_FLIP_HORIZONTAL;
-                        transform->velocity.x = -1;
-
-                    } else if (state[SDL_SCANCODE_D]) {
-                        sprite->Play("Run");
-                        sprite->spriteFlip = SDL_FLIP_NONE;
-                        transform->velocity.x = 1;
-
-                    } else sprite->Play("Idle");
-                }
+                Animating();
+                return;
             }
-            
-            if (!isAnimating && Game::event.type == SDL_KEYDOWN) {
+
+            if (Game::event.type == SDL_KEYDOWN) {
                 switch (Game::event.key.keysym.sym) {
                     case SDLK_w:
                         transform->velocity.y = -1;
@@ -126,7 +101,7 @@ class KeyboardController : public Component {
                 }
             }
 
-            if (!isAnimating && Game::event.type == SDL_KEYUP) {
+            if (Game::event.type == SDL_KEYUP) {
                 switch (Game::event.key.keysym.sym) {
                     case SDLK_w:
                         transform->velocity.y = 0;
@@ -151,6 +126,36 @@ class KeyboardController : public Component {
                     default:
                         break;
                 }
+            }
+        }
+
+        void Animating() {
+            Uint32 currentTick = SDL_GetTicks();
+
+            if (currentTick - lastTick >= sprite->animations[currentAni].speed) {
+                currentFrame++;
+                lastTick = currentTick;
+            }
+
+            if (currentFrame > sprite->animations[currentAni].frames) {
+                currentFrame = 0;
+                isAnimating = false;
+                coolDownStart[currentAni] = currentTick;
+                transform->velocity.x = 0;
+                currentAttack = (currentAttack == "Attack 1") ? "Attack 2" : "Attack 1";
+
+                const Uint8* state = SDL_GetKeyboardState(NULL);
+                if (state[SDL_SCANCODE_A]) {
+                    sprite->Play("Run");
+                    sprite->spriteFlip = SDL_FLIP_HORIZONTAL;
+                    transform->velocity.x = -1;
+
+                } else if (state[SDL_SCANCODE_D]) {
+                    sprite->Play("Run");
+                    sprite->spriteFlip = SDL_FLIP_NONE;
+                    transform->velocity.x = 1;
+
+                } else sprite->Play("Idle");
             }
         }
 };

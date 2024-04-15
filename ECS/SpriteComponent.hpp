@@ -44,9 +44,10 @@ class SpriteComponent : public Component {
             srcY[0] = 0;
 
             int i = 1;
-            for (auto it = animations.begin(); it != animations.end(); it++, i++) {
-                it->second.index = i - 1;
-                srcY[i] = srcY[i - 1] + it->second.frameHeight;
+            for (auto& ani : animations) {
+                ani.second.index = i - 1;
+                srcY[i] = srcY[i - 1] + ani.second.frameHeight;
+                i++;
             }
             
             Play("Idle");
@@ -80,10 +81,10 @@ class SpriteComponent : public Component {
             destRect.x = static_cast<int>(transform->position.x) - Game::camera.x;
 
             if (spriteFlip == SDL_FLIP_HORIZONTAL) {
-                destRect.x -= animations[currentAni].frameWidth - 64 + animations[currentAni].anchor;
-            } else destRect.x += animations[currentAni].anchor;
+                destRect.x -= animations[currentAni].frameWidth - 64 + animations[currentAni].marginLeft;
+            } else destRect.x += animations[currentAni].marginLeft;
 
-            destRect.y = static_cast<int>(transform->position.y) - Game::camera.y - animations[currentAni].frameHeight + 48 + animations[currentAni].padding;
+            destRect.y = static_cast<int>(transform->position.y) - Game::camera.y - animations[currentAni].frameHeight + 48 - animations[currentAni].marginBottom;
 
             destRect.w = animations[currentAni].frameWidth * transform->scale;
             destRect.h = animations[currentAni].frameHeight * transform->scale;
@@ -100,7 +101,7 @@ class SpriteComponent : public Component {
             aniIndex = animations[aniName].index;
             speed = animations[aniName].speed;
 
-            if (aniIndex <= animations.size() - 2)
+            if (aniName != "Run")
                 aniStartTime = SDL_GetTicks();
         }
 };

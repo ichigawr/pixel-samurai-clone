@@ -10,7 +10,6 @@ static const float DEFAULT_Y_POSITION = 432;
 
 class TransformComponent : public Component {
     public:
-    
         Vector2D position;
         Vector2D velocity;
 
@@ -18,16 +17,10 @@ class TransformComponent : public Component {
         int width = 48;
         int scale = 1;
 
-        int speed = 7;
+        int speed = 4;
 
         TransformComponent() {
             position.Zero();
-        }
-
-        TransformComponent(int sc) {
-            position.x = DEFAULT_X_POSITION;
-            position.y = DEFAULT_Y_POSITION;
-            scale = sc;
         }
 
         TransformComponent(int sc, int sp) {

@@ -43,6 +43,7 @@ class Game {
             groupPlayers,
             groupColliders,
             groupProjectiles,
-            groupGrass
+            groupGrass,
+            groupEnemies
         };
 };
