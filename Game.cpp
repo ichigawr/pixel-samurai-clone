@@ -8,7 +8,7 @@
 
 
 Map *map = new Map("terrain", 1, 48, 55, 16);
-Map *grass = new Map("grass", 1, 48, 55, 16);
+Map *grass = new Map("terrain", 1, 48, 55, 16);
 
 Manager manager;
 
@@ -45,7 +45,6 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     } else isRunning = false;
 
     assets->AddTexture("terrain", "assets/tileset.png");
-    assets->AddTexture("grass", "assets/grass.png");
     assets->AddTexture("background", "assets/background.png");
     assets->AddTexture("player", "assets/player_animations.png");
     assets->AddTexture("enemy", "assets/boss1_animations.png");
@@ -74,7 +73,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 
 
 auto& tiles(manager.getGroup(Game::groupMap));
-auto& grasses(manager.getGroup(Game::groupGrass));
+auto& grasses(manager.getGroup(Game::groupGrasses));
 auto& players(manager.getGroup(Game::groupPlayers));
 auto& enemies(manager.getGroup(Game::groupEnemies));
 
