@@ -16,103 +16,174 @@ void Enemy::init() {
         {"Recover"    , Animation( 3, 100,  93, 78,   0,  -36)},
         {"Run"        , Animation( 2, 200,  57, 84,   0,    0)},
         {"SKill"      , Animation( 2, 100, 389, 78,   0, -163)},
-        {"Take Hit"   , Animation( 3, 120,  76, 97, -15,  -20)},
+        {"Take Hit"   , Animation( 3, 100,  76, 97, -15,  -20)},
         {"Tired"      , Animation( 4, 200,  48, 78, -21,    0)}
     };
 
-    playerAnimations = player.getComponent<SpriteComponent>().animations;
-
-    enemy.addComponent<TransformComponent>(1, 4);
+    enemy.addComponent<TransformComponent>(DEFAULT_X_POSITION - 350, DEFAULT_Y_POSITION, 1, 4.5);
     enemy.addComponent<SpriteComponent>("enemy", true, enemyAnimations);
-    enemy.addComponent<ColliderComponent>("enemy");
     enemy.addGroup(Game::groupEnemies);
 
     entity = &enemy;
-    transform = &entity->getComponent<TransformComponent>();
-    sprite = &entity->getComponent<SpriteComponent>();
+    enemyTransform = &entity->getComponent<TransformComponent>();
+    enemySprite = &entity->getComponent<SpriteComponent>();
+
+    playerTransform = &player.getComponent<TransformComponent>();
+    playerSprite = &player.getComponent<SpriteComponent>();
+    playerController = &player.getComponent<KeyboardController>();
 }
 
 
 void Enemy::update() {
-    enemyCol = enemy.getComponent<ColliderComponent>().collider;
-    enemyPos = enemy.getComponent<TransformComponent>().position;
+    enemyCol = enemySprite->getDestRect();
+    enemyPos = enemyTransform->position;
 
-    playerCol = player.getComponent<ColliderComponent>().collider;
-    playerPos = player.getComponent<TransformComponent>().position;
+    playerCol = playerSprite->getDestRect();
+    playerPos = playerTransform->position;
+    playerCurrentFrame = playerController->currentFrame;
+    playerCurrentAni = playerController->currentAni;
 
     if (playerPos.x < enemyPos.x) {
-        sprite->spriteFlip = SDL_FLIP_HORIZONTAL;
-        direction = -1;
+        enemySprite->spriteFlip = SDL_FLIP_HORIZONTAL;
+        enemyDirection = -1;
     } else {
-        sprite->spriteFlip = SDL_FLIP_NONE;
-        direction = 1;
+        enemySprite->spriteFlip = SDL_FLIP_NONE;
+        enemyDirection = 1;
+    }
+
+    if (playerSprite->spriteFlip == SDL_FLIP_HORIZONTAL)
+        playerDirection = -1;
+    else playerDirection = 1;
+
+    if (enemyDirection == playerDirection)
+        playerCol.x += 9 * playerDirection;
+
+    if (enemyPos.x <= 270 || enemyPos.x >= 2325) {
+        enemyTransform->velocity.x = 0;
+        return;
+    }
+
+    if (playerPos.y > DEFAULT_Y_POSITION) {
+        Interrupt();
+        return;
+    }
+
+    characterDistance = (playerPos.x - enemyPos.x) * enemyDirection;
+    enemyAttackRange = enemyAnimations[enemyCurrentAttack].anchor;
+
+    if (characterDistance > enemyAttackRange + 10) {
+        Interrupt();
+
+        if (!isAnimating) {
+            moveToPlayer();
+            return;
+        }
     }
 
     if (isAnimating) {
-        if (characterDistance() > enemyAnimations["Attack"].anchor)
-            isAnimating = false;
+        Animate();
 
-        Animating();
+        if (enemyCurrentAni == "Attack")
+            enemyIsAttacking();
+        
+        if (playerCurrentAni == "Attack 1" || playerCurrentAni == "Attack 2")
+            playerIsAttacking();
 
-    } else {
-        playerCurrentAni = player.getComponent<SpriteComponent>().currentAni;
-
-        if (characterDistance() <= enemyAnimations["Attack"].anchor)
-            attackPlayer();
-        else moveToPlayer();
-
-        // block();
-        // dash();
-        // getBack();
-        // jumpBack();
-        // skill();
+        return;
     }
+
+    if (playerCurrentAni == "Attack 1" || playerCurrentAni == "Attack 2")
+        playerIsAttacking();
+
+    attackPlayer();
 }
 
 
-void Enemy::Animating() {
+void Enemy::Animate() {
     Uint32 currentTick = SDL_GetTicks();
 
-    if (currentTick - lastTick >= sprite->animations[enemyCurrentAni].speed) {
-        currentFrame++;
+    if (currentTick - lastTick >= enemySprite->animations[enemyCurrentAni].speed) {
+        enemyCurrentFrame++;
         lastTick = currentTick;
     }
 
-    if (currentFrame > sprite->animations[enemyCurrentAni].frames) {
-        currentFrame = 0;
-        isAnimating = false;
-        coolDownStart[enemyCurrentAni] = currentTick;
-        transform->velocity.x = 0;
-    }
+    if (enemyCurrentFrame > enemySprite->animations[enemyCurrentAni].frames)
+        Interrupt();
 }
 
 
-int Enemy::characterDistance() {
-    // return ((playerPos.x + playerAnimations[playerCurrentAni].anchor) - (enemyPos.x + enemyAnimations[enemyCurrentAni].anchor)) * direction;
-    return (playerPos.x - enemyPos.x) * direction;
+void Enemy::Interrupt() {
+    if (enemyCurrentAni == "Attack" && enemyCurrentFrame != 6 && enemyCurrentFrame != 15)
+        return;
+
+    enemyCurrentFrame = 1;
+    isAnimating = false;
+    coolDownStart[enemyCurrentAni] = SDL_GetTicks();
+    enemyTransform->velocity.x = 0;
+
+    enemySprite->Play("Idle");
+}
+
+
+bool Enemy::isCollided() {
+    if (enemyCol.x + enemyCol.w >= playerCol.x + 15 &&
+        playerCol.x + playerCol.w >= enemyCol.x + 15)
+            return true;
+
+    return false;
 }
 
 
 void Enemy::moveToPlayer() {
-    sprite->Play("Run");
+    enemySprite->Play("Run");
     enemyCurrentAni = "Run";
-    transform->velocity.x = 1 * direction;
+    enemyTransform->velocity.x = 1 * enemyDirection;
 }
 
 
 void Enemy::attackPlayer() {
-    sprite->Play("Attack");
-    currentFrame++;
+    enemySprite->Play("Attack");
     enemyCurrentAni = "Attack";
+    enemyCurrentAttack = "Attack";
     isAnimating = true;
-    transform->velocity.x = 0;
+    enemyTransform->velocity.x = 0;
 }
 
 
-void Enemy::getHit() {
-    sprite->Play("Get Hit");
-    currentFrame++;
-    enemyCurrentAni = "Get Hit";
+void Enemy::enemyIsAttacking() {    
+    if (isCollided() &&
+        (enemyCurrentFrame == 3 || enemyCurrentFrame == 4 ||
+        enemyCurrentFrame == 10 || enemyCurrentFrame == 11))
+            playerTakeHit();
+
+    if (characterDistance > enemyAttackRange - 10 &&
+        6 <= enemyCurrentFrame && enemyCurrentFrame <= 8)
+            enemyTransform->position.x += 2 * enemyDirection;
+}
+
+
+void Enemy::enemyTakeHit() {
+    enemySprite->Play("Take Hit");
+    enemyCurrentAni = "Take Hit";
     isAnimating = true;
-    transform->velocity.x = -1;
+    enemyTransform->velocity.x = -0.3 * enemyDirection;
+}
+
+
+void Enemy::playerIsAttacking() {
+    if (isCollided()) {
+        if (playerCurrentAni == "Attack 1") {
+            if (playerCurrentFrame == 3)
+                enemyTakeHit();
+        } else if (playerCurrentFrame == 2)
+            enemyTakeHit();
+    }
+}
+
+
+void Enemy::playerTakeHit() {
+    playerSprite->Play("Take Hit");
+    playerController->isAnimating = true;
+    playerController->currentAni = "Take Hit";
+    playerTransform->velocity.x = 0.6 * enemyDirection;
 }

@@ -57,6 +57,14 @@ class SpriteComponent : public Component {
 
         ~SpriteComponent() {    }
 
+        SDL_Rect getSrcRect() {
+            return srcRect;
+        }
+
+        SDL_Rect getDestRect() {
+            return destRect;
+        }
+
         void setTexture(std::string id) {
             texture = Game::assets->GetTexture(id);
         }

@@ -7,8 +7,8 @@
 #include "ECS/Components.hpp"
 #include "ECS/Animation.hpp"
 #include "Game.hpp"
-#include "TextureManager.hpp"
 #include "AssetManager.hpp"
+#include "TextureManager.hpp"
 
 
 class Enemy {
@@ -19,44 +19,55 @@ class Enemy {
 
     public:
         Entity* entity;
-        TransformComponent* transform;
-        SpriteComponent* sprite;
+        TransformComponent* enemyTransform;
+        SpriteComponent* enemySprite;
+        TransformComponent* playerTransform;
+        SpriteComponent* playerSprite;
+        KeyboardController* playerController;
 
         SDL_Rect enemyCol;
         Vector2D enemyPos;
         SDL_Rect playerCol;
         Vector2D playerPos;
 
-        int direction = 1;
-
         std::map<std::string, Animation> enemyAnimations;
-        std::map<std::string, Animation> playerAnimations;
 
         Uint32 lastTick;
         std::unordered_map<std::string, Uint32> coolDownStart;
         std::unordered_map<std::string, int> coolDown;
-        int currentFrame = 0;
         bool isAnimating = false;
+        int enemyCurrentFrame = 1;
+        int playerCurrentFrame;
         std::string enemyCurrentAni;
         std::string playerCurrentAni;
-        
-        Enemy() = default;
+
+        int enemyDirection = 1;
+        int playerDirection = 1;
+        int characterDistance;
+        int enemyAttackRange;
+        std::string enemyCurrentAttack = "Attack";
+
         Enemy(Manager* mgr, Entity& plyr);
         ~Enemy() = default;
 
         void init();
         void update();
 
-        void Animating();
+        void Animate();
         void Interrupt();
-        int characterDistance();
+        bool isCollided();
 
         void moveToPlayer();
         void attackPlayer();
-        void getHit();
-        // void block();
-        // void dash();
+        void enemyIsAttacking();
+        void enemyTakeHit();
+        // void enemyBlock();
+        // void dashAttack();
         // void getBack();
         // void jumpBack();
         // void skill();
+
+        void playerIsAttacking();
+        void playerTakeHit();
+        void playerBlock();
 };

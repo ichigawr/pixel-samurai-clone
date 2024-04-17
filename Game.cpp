@@ -60,10 +60,10 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
         {"Die"     , Animation(3, 200,  63, 51,  -3, -15)},
         {"Idle"    , Animation(3, 200,  48, 48,   0,   0)},
         {"Run"     , Animation(3, 200,  48, 51,   0,   0)},
-        {"Take Hit", Animation(2, 200,  48, 45,   0,   0)}
+        {"Take Hit", Animation(2, 150,  48, 45,   0,   0)}
     };
 
-    player.addComponent<TransformComponent>(1, 7);
+    player.addComponent<TransformComponent>(1, 4);
     player.addComponent<SpriteComponent>("player", true, playerAnimations);
     player.addComponent<KeyboardController>();
     player.addGroup(groupPlayers);

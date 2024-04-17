@@ -13,12 +13,12 @@ class KeyboardController : public Component {
         SpriteComponent *sprite;
 
         Uint32 lastTick;
-        std::unordered_map<const char*, Uint32> coolDownStart;
-        std::unordered_map<const char*, int> coolDown;
-        int currentFrame = 0;
+        std::unordered_map<std::string, Uint32> coolDownStart;
+        std::unordered_map<std::string, int> coolDown;
+        int currentFrame = 1;
         bool isAnimating = false;
-        const char* currentAni;
-        const char* currentAttack = "Attack 1";
+        std::string currentAni;
+        std::string currentAttack = "Attack 1";
 
         void init() override {
             transform = &entity->getComponent<TransformComponent>();
@@ -32,7 +32,7 @@ class KeyboardController : public Component {
 
         void update() override {
             if (isAnimating) {
-                Animating();
+                Animate();
                 return;
             }
 
@@ -62,7 +62,6 @@ class KeyboardController : public Component {
 
                     case SDLK_j:
                         sprite->Play(currentAttack);
-                        currentFrame++;
                         isAnimating = true;
                         currentAni = currentAttack;
                         lastTick = SDL_GetTicks();
@@ -72,7 +71,6 @@ class KeyboardController : public Component {
                     case SDLK_k:
                         if (SDL_GetTicks() - coolDownStart["Block"] >= coolDown["Block"]) {
                             sprite->Play("Block");
-                            currentFrame++;
                             isAnimating = true;
                             currentAni = "Block";
                             lastTick = SDL_GetTicks();
@@ -84,7 +82,6 @@ class KeyboardController : public Component {
                     case SDLK_SPACE:
                         if (SDL_GetTicks() - coolDownStart["Dash"] >= coolDown["Dash"]) {
                             sprite->Play("Dash");
-                            currentFrame++;
                             isAnimating = true;
                             currentAni = "Dash";
                             lastTick = SDL_GetTicks();
@@ -129,19 +126,29 @@ class KeyboardController : public Component {
             }
         }
 
-        void Animating() {
+        void Animate() {
             Uint32 currentTick = SDL_GetTicks();
+
+            // Uint32 frameDelay = sprite->animations[currentAni].speed - (SDL_GetTicks() - lastTick) % sprite->animations[currentAni].speed;
+
+            // if (frameDelay < 1000 / 60) {
+            //     SDL_Delay(frameDelay);
+            //     currentFrame++;
+            //     lastTick = SDL_GetTicks();
+            // }
 
             if (currentTick - lastTick >= sprite->animations[currentAni].speed) {
                 currentFrame++;
                 lastTick = currentTick;
             }
 
+            // SDL_Rect lastFrame = sprite->getSrcRect();
+
+            // if (lastFrame.x == sprite->animations[currentAni].frameWidth * (sprite->animations[currentAni].frames - 1)) {
+
             if (currentFrame > sprite->animations[currentAni].frames) {
-                currentFrame = 0;
-                isAnimating = false;
-                coolDownStart[currentAni] = currentTick;
-                transform->velocity.x = 0;
+                Interrupt();
+
                 currentAttack = (currentAttack == "Attack 1") ? "Attack 2" : "Attack 1";
 
                 const Uint8* state = SDL_GetKeyboardState(NULL);
@@ -157,5 +164,12 @@ class KeyboardController : public Component {
 
                 } else sprite->Play("Idle");
             }
+        }
+
+        void Interrupt() {
+            currentFrame = 1;
+            isAnimating = false;
+            coolDownStart[currentAni] = SDL_GetTicks();
+            transform->velocity.x = 0;
         }
 };

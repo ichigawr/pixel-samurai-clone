@@ -17,7 +17,7 @@ class TransformComponent : public Component {
         int width = 48;
         int scale = 1;
 
-        int speed = 4;
+        float speed = 4;
 
         TransformComponent() {
             position.Zero();
@@ -34,12 +34,11 @@ class TransformComponent : public Component {
             position.Zero();
         }
 
-        TransformComponent(float x, float y, int w, int h, int s) {
+        TransformComponent(float x, float y, int sc, float sp) {
             position.x = x;
             position.y = y;
-            width = w;
-            height = h;
-            scale = s;
+            scale = sc;
+            speed = sp;
         }
 
         void init() override {
