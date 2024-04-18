@@ -41,7 +41,8 @@ class Enemy {
         int playerDirection = 1;
         int characterDistance;
 
-        int enemyHealth = 30;
+        int MAX_HEALTH = 30;
+        int enemyHealth = MAX_HEALTH;
         int playerHealth = 10;
         int playerDamage = 2;
 

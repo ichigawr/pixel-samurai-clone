@@ -18,6 +18,9 @@ SDL_Event Game::event;
 SDL_Rect Game::camera = {0, 0, map->getScaledSize() * map->getSizeX() - WINDOW_WIDTH, map->getScaledSize() * map->getSizeY() - WINDOW_HEIGHT};
 SDL_Rect background = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
 
+int Game::shakeDuration = 0;
+int Game::shakeAmount = 0;
+
 AssetManager *Game::assets = new AssetManager(&manager);
 
 bool Game::isRunning = false;
@@ -55,8 +58,8 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     std::map<std::string, Animation> playerAnimations = {
         {"Attack 1"     , Animation(4, 100, 126, 57,  -3, -36)},
         {"Attack 2"     , Animation(4, 100, 126, 63, -12, -36)},
-        {"Block"        , Animation(1, 300,  67, 48,  -6,   0)},
-        {"Block Success", Animation(1, 300,  67, 48,  -6,   0)},
+        {"Block"        , Animation(1, 200,  67, 48,  -6,   0)},
+        {"Block Success", Animation(1, 200,  67, 48,  -6,   0)},
         {"Dash"         , Animation(3, 100,  88, 45,   0, -40)},
         {"Dead"         , Animation(1, 100,  63, 51,  -3, -15)},
         {"Die"          , Animation(3, 200,  63, 51,  -3, -15)},
@@ -71,6 +74,12 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     player.addGroup(groupPlayers);
 
     enemy->init();
+}
+
+
+void Game::cameraShake(int duration, int amount) {
+    shakeDuration = duration;
+    shakeAmount = amount;
 }
 
 
@@ -101,7 +110,6 @@ void Game::handleEvents() {
 
 void Game::update() {
     Vector2D playerPos = player.getComponent<TransformComponent>().position;
-
     
     manager.refresh();
     manager.update();
@@ -115,6 +123,25 @@ void Game::update() {
 
     camera.x = player.getComponent<TransformComponent>().position.x - WINDOW_WIDTH / 2;
     camera.y = player.getComponent<TransformComponent>().position.y - WINDOW_HEIGHT / 2 - 150;
+
+    // Camera shake
+    if (shakeDuration > 0) {
+        // Calculate a random offset
+        int offsetX = (rand() % (shakeAmount * 2)) - shakeAmount;
+        int offsetY = (rand() % (shakeAmount * 2)) - shakeAmount;
+
+        // Apply the offset to the camera position
+        camera.x += offsetX;
+        camera.y += offsetY;
+
+        // Decrease the shake duration
+        shakeDuration--;
+
+    } else {
+        // Reset the shake variables
+        shakeDuration = 0;
+        shakeAmount = 0;
+    }
 
     if (camera.x < 0)
         camera.x = 0;

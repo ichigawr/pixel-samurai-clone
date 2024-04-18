@@ -27,17 +27,19 @@ void Enemy::init() {
     };
 
     coolDown = {
-        {"Block"      ,  9000},
+        {"Block"      ,  7000},
         {"Skill"      , 13000}
     };
 
     attackRanges = {
-        {"Attack"     , enemyAnimations[     "Attack"].anchor          - 35},
-        {"Dash Attack", enemyAnimations["Dash Attack"].frameWidth + 80},
-        {"Skill"      ,               WINDOW_WIDTH                /  2     }
+        {"Attack"     , enemyAnimations[     "Attack"].anchor     - 35},
+        {"Dash Attack", enemyAnimations["Dash Attack"].frameWidth + 35},
+        {"Skill"      ,               WINDOW_WIDTH                /  2}
     };
 
-    enemy.addComponent<TransformComponent>(DEFAULT_X_POSITION - 150, DEFAULT_Y_POSITION, 1, 4);
+    enemyHealth = MAX_HEALTH;
+
+    enemy.addComponent<TransformComponent>(DEFAULT_X_POSITION + 350, DEFAULT_Y_POSITION, 1, 4);
     enemy.addComponent<SpriteComponent>("enemy", true, enemyAnimations);
     enemy.addGroup(Game::groupEnemies);
 
@@ -96,24 +98,14 @@ void Enemy::update() {
 
     if (coolDownReady["Skill"])
         enemyCurrentAttack = "Skill";
-    else if (characterDistance >= attackRanges["Dash Attack"])
+    else if (characterDistance > attackRanges["Attack"] + 50)
             enemyCurrentAttack = "Dash Attack";
     else enemyCurrentAttack = "Attack";
 
     enemyAttackRange = attackRanges[enemyCurrentAttack];
 
-    if (playerCurrentAni == "Attack 1" || playerCurrentAni == "Attack 2") {
-        srand(time(0));
-
-        if ((rand() % 100 <= 40 && coolDownReady["Block"]) ||
-            enemyCurrentAni == "Tired" || enemyCurrentAni == "Recover")
-                enemyBlock();
-        
-        if (enemyCurrentAni == "Block")
-            enemyBlock();
-
+    if (playerCurrentAni == "Attack 1" || playerCurrentAni == "Attack 2")
         playerIsAttacking();
-    }
 
     playerHealth = playerController->health;
     
@@ -182,7 +174,7 @@ void Enemy::Animate() {
 
     } else if (enemyCurrentAni == "Dash Attack") {
         if (enemyCurrentFrame == 6 || enemyCurrentFrame == 7)
-            enemyTransform->velocity.x = 11 * enemyDirection;
+            enemyTransform->velocity.x = 7.5 * enemyDirection;
         else enemyTransform->velocity.x = 0;
 
     } else if (enemyCurrentAni == "Take Hit") {
@@ -325,6 +317,7 @@ void Enemy::enemyTakeHit() {
     enemySprite->Play("Take Hit");
     enemyCurrentAni = "Take Hit";
     isAnimating = true;
+    Game::cameraShake(6, 3);
     lastTick = SDL_GetTicks();
 }
 
@@ -333,6 +326,7 @@ void Enemy::enemyBlock() {
     enemySprite->Play("Block");
     enemyCurrentAni = "Block";
     isAnimating = true;
+    Game::cameraShake(6, 3);
     lastTick = SDL_GetTicks();
 }
 
@@ -391,17 +385,25 @@ void Enemy::enemyDie() {
 
 
 void Enemy::playerIsAttacking() {
-    bool enemyIsBlocking = (enemyCurrentAni == "Block" || enemyCurrentAni == "Take Hit") ? true : false;
+    bool enemyIsBlocking = (enemyCurrentAni == "Block" || enemyCurrentAni == "Take Hit" || enemyCurrentAni == "Skill") ? true : false;
 
     if (isCollided() &&
         (playerCurrentAni == "Attack 1" && playerCurrentFrame == 3) ||
         (playerCurrentAni == "Attack 2" && playerCurrentFrame == 2)) {
+            srand(time(0));
+
+            if ((rand() % 100 <= 70 && coolDownReady["Block"]) ||
+                enemyCurrentAni == "Tired" || enemyCurrentAni == "Recover")
+                    enemyBlock();
+
             if (!enemyIsBlocking)
                 enemyTakeHit();
 
-            if (enemyCurrentAni == "Block")
+            if (enemyCurrentAni == "Block") {
+                enemyBlock();
                 playerTransform->velocity.x = 0.5 * enemyDirection;
-            else playerTransform->velocity.x = 0;
+
+            }else playerTransform->velocity.x = 0;
         }
 }
 
@@ -410,6 +412,7 @@ void Enemy::playerTakeHit() {
     playerSprite->Play("Take Hit");
     playerController->isAnimating = true;
     playerController->currentAni = "Take Hit";
+    Game::cameraShake(6, 3);
     playerController->lastTick = SDL_GetTicks();
 }
 
@@ -418,6 +421,7 @@ void Enemy::playerBlockSuccess() {
     playerSprite->Play("Block Success");
     playerController->currentAni = "Block Success";
     playerController->isAnimating = true;
+    Game::cameraShake(6, 3);
     playerController->lastTick = SDL_GetTicks();
 }
 

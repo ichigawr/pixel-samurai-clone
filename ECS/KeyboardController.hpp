@@ -39,20 +39,21 @@ class KeyboardController : public Component {
                 return;
             }
 
-            const Uint8* state = SDL_GetKeyboardState(NULL);
-            if (state[SDL_SCANCODE_A]) {
-                sprite->Play("Run");
-                sprite->spriteFlip = SDL_FLIP_HORIZONTAL;
-                transform->velocity.x = -1;
+            if (health > 0) {
+                const Uint8* state = SDL_GetKeyboardState(NULL);
+                if (state[SDL_SCANCODE_A]) {
+                    sprite->Play("Run");
+                    sprite->spriteFlip = SDL_FLIP_HORIZONTAL;
+                    transform->velocity.x = -1;
 
-            } else if (state[SDL_SCANCODE_D]) {
-                sprite->Play("Run");
-                sprite->spriteFlip = SDL_FLIP_NONE;
-                transform->velocity.x = 1;
-
+                } else if (state[SDL_SCANCODE_D]) {
+                    sprite->Play("Run");
+                    sprite->spriteFlip = SDL_FLIP_NONE;
+                    transform->velocity.x = 1;
+                }
             }
 
-            if (Game::event.type == SDL_KEYDOWN) {
+            if (health > 0 && Game::event.type == SDL_KEYDOWN) {
                 int direction = (sprite->spriteFlip == SDL_FLIP_NONE) ? 1 : -1;
 
                 switch (Game::event.key.keysym.sym) {
@@ -113,7 +114,7 @@ class KeyboardController : public Component {
                 }
             }
 
-            if (Game::event.type == SDL_KEYUP) {
+            if (health > 0 && Game::event.type == SDL_KEYUP) {
                 switch (Game::event.key.keysym.sym) {
                     case SDLK_w:
                         transform->velocity.y = 0;

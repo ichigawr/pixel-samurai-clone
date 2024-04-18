@@ -24,7 +24,6 @@ class Game {
         ~Game();
 
         void init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen);
-        
         void handleEvents();
         void update();
         void render();
@@ -39,6 +38,10 @@ class Game {
         static bool isRunning;
         static SDL_Rect camera;
         static AssetManager *assets;
+        static int shakeDuration;
+        static int shakeAmount;
+        
+        static void cameraShake(int duration, int magnitude);
 
         enum groupLabels : std::size_t {
             groupMap,
