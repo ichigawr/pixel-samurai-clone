@@ -331,6 +331,7 @@ void Enemy::enemyBlock() {
     enemySprite->Play("Block");
     enemyCurrentAni = "Block";
     isAnimating = true;
+    enemyTransform->velocity.x = 0;
     lastTick = SDL_GetTicks();
 
     Game::cameraShake(6, 3);
@@ -410,7 +411,7 @@ void Enemy::playerIsAttacking() {
                 enemyBlock();
                 playerTransform->velocity.x = 0.5 * enemyDirection;
 
-            }else playerTransform->velocity.x = 0;
+            } else playerTransform->velocity.x = 0;
         }
 }
 
