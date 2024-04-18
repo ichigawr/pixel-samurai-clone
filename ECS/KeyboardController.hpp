@@ -20,13 +20,16 @@ class KeyboardController : public Component {
         std::string currentAni;
         std::string currentAttack = "Attack 1";
 
+        int health = 10;
+        int enemyDamage = 2;
+
         void init() override {
             transform = &entity->getComponent<TransformComponent>();
             sprite = &entity->getComponent<SpriteComponent>();
 
             coolDown = {
                 {"Block", 300},
-                {"Dash", 500}
+                {"Dash" , 500}
             };
         }
 
@@ -36,7 +39,22 @@ class KeyboardController : public Component {
                 return;
             }
 
+            const Uint8* state = SDL_GetKeyboardState(NULL);
+            if (state[SDL_SCANCODE_A]) {
+                sprite->Play("Run");
+                sprite->spriteFlip = SDL_FLIP_HORIZONTAL;
+                transform->velocity.x = -1;
+
+            } else if (state[SDL_SCANCODE_D]) {
+                sprite->Play("Run");
+                sprite->spriteFlip = SDL_FLIP_NONE;
+                transform->velocity.x = 1;
+
+            }
+
             if (Game::event.type == SDL_KEYDOWN) {
+                int direction = (sprite->spriteFlip == SDL_FLIP_NONE) ? 1 : -1;
+
                 switch (Game::event.key.keysym.sym) {
                     case SDLK_w:
                         transform->velocity.y = -1;
@@ -64,8 +82,8 @@ class KeyboardController : public Component {
                         sprite->Play(currentAttack);
                         isAnimating = true;
                         currentAni = currentAttack;
-                        lastTick = SDL_GetTicks();
                         transform->velocity.x = 0;
+                        lastTick = SDL_GetTicks();
                         break;
 
                     case SDLK_k:
@@ -73,8 +91,8 @@ class KeyboardController : public Component {
                             sprite->Play("Block");
                             isAnimating = true;
                             currentAni = "Block";
-                            lastTick = SDL_GetTicks();
                             transform->velocity.x = 0;
+                            lastTick = SDL_GetTicks();
                         }
 
                         break;
@@ -84,11 +102,8 @@ class KeyboardController : public Component {
                             sprite->Play("Dash");
                             isAnimating = true;
                             currentAni = "Dash";
+                            transform->velocity.x = 2 * direction;
                             lastTick = SDL_GetTicks();
-
-                            if (sprite->spriteFlip == SDL_FLIP_HORIZONTAL)
-                                transform->velocity.x = -2;
-                            else transform->velocity.x = 2;
                         }
 
                         break;
@@ -127,49 +142,29 @@ class KeyboardController : public Component {
         }
 
         void Animate() {
-            Uint32 currentTick = SDL_GetTicks();
+            Uint32 aniTime = sprite->animations[currentAni].speed * sprite->animations[currentAni].frames;
+            Uint32 aniElapsedTime = SDL_GetTicks() - lastTick;
+            Uint32 aniFrameDelay = (aniTime > aniElapsedTime) ? aniTime - aniElapsedTime : 0;
 
-            // Uint32 frameDelay = sprite->animations[currentAni].speed - (SDL_GetTicks() - lastTick) % sprite->animations[currentAni].speed;
+            currentFrame = aniElapsedTime / sprite->animations[currentAni].speed + 1;
 
-            // if (frameDelay < 1000 / 60) {
-            //     SDL_Delay(frameDelay);
-            //     currentFrame++;
-            //     lastTick = SDL_GetTicks();
-            // }
-
-            if (currentTick - lastTick >= sprite->animations[currentAni].speed) {
-                currentFrame++;
-                lastTick = currentTick;
-            }
-
-            // SDL_Rect lastFrame = sprite->getSrcRect();
-
-            // if (lastFrame.x == sprite->animations[currentAni].frameWidth * (sprite->animations[currentAni].frames - 1)) {
-
-            if (currentFrame > sprite->animations[currentAni].frames) {
-                Interrupt();
-
+            if (aniFrameDelay <= frameDelay) {
                 currentAttack = (currentAttack == "Attack 1") ? "Attack 2" : "Attack 1";
 
-                const Uint8* state = SDL_GetKeyboardState(NULL);
-                if (state[SDL_SCANCODE_A]) {
-                    sprite->Play("Run");
-                    sprite->spriteFlip = SDL_FLIP_HORIZONTAL;
-                    transform->velocity.x = -1;
+                SDL_Delay(aniFrameDelay);
 
-                } else if (state[SDL_SCANCODE_D]) {
-                    sprite->Play("Run");
-                    sprite->spriteFlip = SDL_FLIP_NONE;
-                    transform->velocity.x = 1;
-
-                } else sprite->Play("Idle");
+                Interrupt();
             }
         }
 
         void Interrupt() {
-            currentFrame = 1;
+            if (currentAni == "Take Hit")
+                health -= enemyDamage;
+            
             isAnimating = false;
             coolDownStart[currentAni] = SDL_GetTicks();
+            sprite->Play("Idle");
+            currentAni = "Idle";
             transform->velocity.x = 0;
         }
 };

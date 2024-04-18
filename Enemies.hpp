@@ -7,8 +7,6 @@
 #include "ECS/Components.hpp"
 #include "ECS/Animation.hpp"
 #include "Game.hpp"
-#include "AssetManager.hpp"
-#include "TextureManager.hpp"
 
 
 class Enemy {
@@ -33,8 +31,6 @@ class Enemy {
         std::map<std::string, Animation> enemyAnimations;
 
         Uint32 lastTick;
-        std::unordered_map<std::string, Uint32> coolDownStart;
-        std::unordered_map<std::string, int> coolDown;
         bool isAnimating = false;
         int enemyCurrentFrame = 1;
         int playerCurrentFrame;
@@ -44,8 +40,22 @@ class Enemy {
         int enemyDirection = 1;
         int playerDirection = 1;
         int characterDistance;
+
+        int enemyHealth = 30;
+        int playerHealth = 10;
+        int playerDamage = 2;
+
+        bool enemyDead = false;
+        bool playerDead = false;
+
+        bool skillReady = false;
         int enemyAttackRange;
-        std::string enemyCurrentAttack = "Attack";
+        std::string enemyCurrentAttack;
+        std::unordered_map<std::string, int> attackRanges;
+
+        std::unordered_map<std::string, Uint32> coolDownStart;
+        std::unordered_map<std::string, bool> coolDownReady;
+        std::unordered_map<std::string, int> coolDown;
 
         Enemy(Manager* mgr, Entity& plyr);
         ~Enemy() = default;
@@ -61,13 +71,16 @@ class Enemy {
         void attackPlayer();
         void enemyIsAttacking();
         void enemyTakeHit();
-        // void enemyBlock();
-        // void dashAttack();
-        // void getBack();
-        // void jumpBack();
-        // void skill();
+        void enemyBlock();
+        void dashAttack();
+        void enemyRecover();
+        void jumpBack();
+        void triggerSkill();
+        void getTired();
+        void enemyDie();
 
         void playerIsAttacking();
         void playerTakeHit();
-        void playerBlock();
+        void playerBlockSuccess();
+        void playerDie();
 };

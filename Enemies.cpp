@@ -7,20 +7,37 @@ Enemy::Enemy(Manager* mgr, Entity& plyr)
 
 void Enemy::init() {
     enemyAnimations = {
-        {"Attack"     , Animation(14, 100, 147, 78,   0,  -48)},
-        {"Block"      , Animation( 3, 300,  93, 54,   0,  -48)},
-        {"Dash Attack", Animation(11, 100, 132, 78,   0,   -9)},
+        {"Attack"     , Animation(17, 100, 147, 78,   0,  -48)},
+        {"Block"      , Animation( 6, 200,  93, 54,   0,  -48)},
+        {"Dash Attack", Animation(12, 100, 132, 78,   0,   -9)},
+        {"Dead"       , Animation( 1, 100,  87, 72,   0,    0)},
         {"Die"        , Animation( 2, 200,  87, 72,   0,    0)},
         {"Idle"       , Animation( 4, 200,  57, 78,   0,    0)},
         {"Jump Back"  , Animation( 7, 100, 108, 88,   0,  -45)},
         {"Recover"    , Animation( 3, 100,  93, 78,   0,  -36)},
         {"Run"        , Animation( 2, 200,  57, 84,   0,    0)},
-        {"SKill"      , Animation( 2, 100, 389, 78,   0, -163)},
+        {"Skill"      , Animation( 7, 100, 389, 78,   0, -163)},
         {"Take Hit"   , Animation( 3, 100,  76, 97, -15,  -20)},
-        {"Tired"      , Animation( 4, 200,  48, 78, -21,    0)}
+        {"Tired"      , Animation(12, 200,  48, 78, -21,    0)}
     };
 
-    enemy.addComponent<TransformComponent>(DEFAULT_X_POSITION - 350, DEFAULT_Y_POSITION, 1, 4.5);
+    coolDownReady = {
+        {"Block"      , false},
+        {"Skill"      , false}
+    };
+
+    coolDown = {
+        {"Block"      ,  9000},
+        {"Skill"      , 13000}
+    };
+
+    attackRanges = {
+        {"Attack"     , enemyAnimations[     "Attack"].anchor          - 35},
+        {"Dash Attack", enemyAnimations["Dash Attack"].frameWidth + 80},
+        {"Skill"      ,               WINDOW_WIDTH                /  2     }
+    };
+
+    enemy.addComponent<TransformComponent>(DEFAULT_X_POSITION - 150, DEFAULT_Y_POSITION, 1, 4);
     enemy.addComponent<SpriteComponent>("enemy", true, enemyAnimations);
     enemy.addGroup(Game::groupEnemies);
 
@@ -43,85 +60,207 @@ void Enemy::update() {
     playerCurrentFrame = playerController->currentFrame;
     playerCurrentAni = playerController->currentAni;
 
-    if (playerPos.x < enemyPos.x) {
-        enemySprite->spriteFlip = SDL_FLIP_HORIZONTAL;
-        enemyDirection = -1;
-    } else {
-        enemySprite->spriteFlip = SDL_FLIP_NONE;
-        enemyDirection = 1;
+    if (enemyCurrentAni != "Dash Attack" && enemyCurrentAni != "Skill" && enemyCurrentAni != "Tired") {
+        if (playerPos.x < enemyPos.x - 20) {
+            enemySprite->spriteFlip = SDL_FLIP_HORIZONTAL;
+            enemyDirection = -1;
+
+        } else if (playerPos.x > enemyPos.x + 20) {
+            enemySprite->spriteFlip = SDL_FLIP_NONE;
+            enemyDirection = 1;
+        }
     }
 
-    if (playerSprite->spriteFlip == SDL_FLIP_HORIZONTAL)
-        playerDirection = -1;
-    else playerDirection = 1;
+    playerDirection = (playerSprite->spriteFlip == SDL_FLIP_NONE) ? 1 : -1;
 
     if (enemyDirection == playerDirection)
         playerCol.x += 9 * playerDirection;
 
-    if (enemyPos.x <= 270 || enemyPos.x >= 2325) {
-        enemyTransform->velocity.x = 0;
-        return;
-    }
+    if (enemyPos.x < 270)
+        enemyTransform->position.x = 270;
+    else if (enemyPos.x > 2300)
+        enemyTransform->position.x = 2300;
 
     if (playerPos.y > DEFAULT_Y_POSITION) {
         Interrupt();
         return;
     }
 
-    characterDistance = (playerPos.x - enemyPos.x) * enemyDirection;
-    enemyAttackRange = enemyAnimations[enemyCurrentAttack].anchor;
+    characterDistance = (playerPos.x - enemyPos.x) * enemyDirection - 48;
 
-    if (characterDistance > enemyAttackRange + 10) {
-        Interrupt();
+    for (auto& x : coolDownReady) 
+        x.second = (SDL_GetTicks() - coolDownStart[x.first] >= coolDown[x.first]) ? true : false;
 
-        if (!isAnimating) {
-            moveToPlayer();
-            return;
-        }
+    if (enemyHealth > 16)
+        coolDownReady["Skill"] = false;
+
+    if (coolDownReady["Skill"])
+        enemyCurrentAttack = "Skill";
+    else if (characterDistance >= attackRanges["Dash Attack"])
+            enemyCurrentAttack = "Dash Attack";
+    else enemyCurrentAttack = "Attack";
+
+    enemyAttackRange = attackRanges[enemyCurrentAttack];
+
+    if (playerCurrentAni == "Attack 1" || playerCurrentAni == "Attack 2") {
+        srand(time(0));
+
+        if ((rand() % 100 <= 40 && coolDownReady["Block"]) ||
+            enemyCurrentAni == "Tired" || enemyCurrentAni == "Recover")
+                enemyBlock();
+        
+        if (enemyCurrentAni == "Block")
+            enemyBlock();
+
+        playerIsAttacking();
+    }
+
+    playerHealth = playerController->health;
+    
+    if (playerHealth <= 0) {
+        if (!playerDead) {
+            Interrupt();
+            playerDie();
+            enemySprite->Play("Idle");
+            enemyCurrentAni = "Idle";
+            enemyTransform->velocity.x = 0;
+
+        } else if (!playerController->isAnimating)
+            playerSprite->Play("Dead");
+
+        return;
     }
 
     if (isAnimating) {
         Animate();
 
-        if (enemyCurrentAni == "Attack")
-            enemyIsAttacking();
-        
-        if (playerCurrentAni == "Attack 1" || playerCurrentAni == "Attack 2")
-            playerIsAttacking();
+        if (enemyCurrentAni == "Attack" ||
+            enemyCurrentAni == "Dash Attack" ||
+            enemyCurrentAni == "Skill")
+                enemyIsAttacking();
 
         return;
     }
 
-    if (playerCurrentAni == "Attack 1" || playerCurrentAni == "Attack 2")
-        playerIsAttacking();
+    if (enemyHealth <= 0) {
+        if (!enemyDead) {
+            playerController->Interrupt();
+            enemyDie();
+            playerSprite->Play("Idle");
+            playerController->currentAni = "Idle";
+            playerTransform->velocity.x = 0;
+        }
 
-    attackPlayer();
+        return;
+    }
+
+    if (characterDistance > enemyAttackRange) {
+        moveToPlayer();
+        return;
+    }
+
+    if (enemyCurrentAttack == "Skill") {
+        if (characterDistance + 144 < enemyAttackRange && !skillReady) {
+            skillReady = true;
+            jumpBack();
+
+        } else triggerSkill();
+
+    } else if (enemyCurrentAttack == "Dash Attack")
+        dashAttack();
+
+    else if (enemyCurrentAttack == "Attack")
+        attackPlayer();
 }
 
 
 void Enemy::Animate() {
-    Uint32 currentTick = SDL_GetTicks();
+    if (enemyCurrentAni == "Attack") {
+        if (6 <= enemyCurrentFrame && enemyCurrentFrame <= 8)
+            enemyTransform->velocity.x = 0.4 * enemyDirection;
+        else enemyTransform->velocity.x = 0;
 
-    if (currentTick - lastTick >= enemySprite->animations[enemyCurrentAni].speed) {
-        enemyCurrentFrame++;
-        lastTick = currentTick;
+    } else if (enemyCurrentAni == "Dash Attack") {
+        if (enemyCurrentFrame == 6 || enemyCurrentFrame == 7)
+            enemyTransform->velocity.x = 11 * enemyDirection;
+        else enemyTransform->velocity.x = 0;
+
+    } else if (enemyCurrentAni == "Take Hit") {
+        if (isCollided() &&
+            (playerCurrentAni == "Attack 1" && playerCurrentFrame == 3) ||
+            (playerCurrentAni == "Attack 2" && playerCurrentFrame == 2))
+                enemyTransform->velocity.x = -1 * enemyDirection;
+        else enemyTransform->velocity.x = 0;
+
+    } else if (enemyCurrentAni == "Jump Back") {
+        if (4 <= enemyCurrentFrame && enemyCurrentFrame <= 6)
+            enemyTransform->velocity.x = -2 * enemyDirection;
+        else enemyTransform->velocity.x = 0;
+
+    } else if (enemyCurrentAni == "Skill") {
+        if (enemyCurrentFrame == 7)
+            enemyTransform->velocity.x = (characterDistance + 140) / enemyTransform->speed * enemyDirection;
+        else enemyTransform->velocity.x = 0;
+    }
+    
+    if ((playerCurrentAni == "Block" || playerCurrentAni == "Block Success")) {
+        if (isCollided() &&
+            ((enemyCurrentAni == "Attack" && (enemyCurrentFrame == 3 || enemyCurrentFrame == 10)) ||
+            (enemyCurrentAni == "Dash Attack" && (enemyCurrentFrame == 6 || enemyCurrentFrame == 7)) ||
+            (enemyCurrentAni == "Skill" && enemyCurrentFrame == 7)))
+                playerTransform->velocity.x = 0.7 * enemyDirection;
+        else playerTransform->velocity.x = 0;
+
+    } else if (playerCurrentAni == "Take Hit") {
+        if (isCollided() &&
+            ((enemyCurrentAni == "Attack" && (enemyCurrentFrame == 3 || enemyCurrentFrame == 10)) ||
+            (enemyCurrentAni == "Dash Attack" && (enemyCurrentFrame == 6 || enemyCurrentFrame == 7)) ||
+            (enemyCurrentAni == "Skill" && enemyCurrentFrame == 7)))
+                playerTransform->velocity.x = 1 * enemyDirection;
+        else playerTransform->velocity.x = 0;
     }
 
-    if (enemyCurrentFrame > enemySprite->animations[enemyCurrentAni].frames)
+    Uint32 aniTime = enemyAnimations[enemyCurrentAni].speed * enemyAnimations[enemyCurrentAni].frames;
+    Uint32 aniElapsedTime = SDL_GetTicks() - lastTick;
+    Uint32 aniFrameDelay = (aniTime > aniElapsedTime) ? aniTime - aniElapsedTime : 0;
+
+    enemyCurrentFrame = aniElapsedTime / enemyAnimations[enemyCurrentAni].speed + 1;
+
+    if (aniFrameDelay <= frameDelay) {
+        SDL_Delay(aniFrameDelay);
         Interrupt();
+    }
 }
 
 
 void Enemy::Interrupt() {
-    if (enemyCurrentAni == "Attack" && enemyCurrentFrame != 6 && enemyCurrentFrame != 15)
-        return;
-
-    enemyCurrentFrame = 1;
     isAnimating = false;
-    coolDownStart[enemyCurrentAni] = SDL_GetTicks();
     enemyTransform->velocity.x = 0;
 
-    enemySprite->Play("Idle");
+    coolDownStart[enemyCurrentAni] = SDL_GetTicks();
+
+    if (enemyCurrentAni == "Block") {
+        if (characterDistance < attackRanges["Dash Attack"])
+            jumpBack();
+        else enemyRecover();
+    
+    } else if (enemyCurrentAni == "Jump Back")
+        enemyRecover();
+    
+    else if (enemyCurrentAni == "Skill") {
+        skillReady = false;
+        getTired();
+    
+    } else if (enemyCurrentAni == "Take Hit")
+        enemyHealth -= playerDamage;
+    
+    else if (enemyCurrentAni == "Die" || enemyCurrentAni == "Dead")
+        enemySprite->Play("Dead");
+
+    else if (enemyCurrentAni != "Run") {
+        enemySprite->Play("Idle");
+        enemyCurrentAni = "Idle";
+    }
 }
 
 
@@ -146,19 +285,39 @@ void Enemy::attackPlayer() {
     enemyCurrentAni = "Attack";
     enemyCurrentAttack = "Attack";
     isAnimating = true;
-    enemyTransform->velocity.x = 0;
+    lastTick = SDL_GetTicks();
 }
 
 
-void Enemy::enemyIsAttacking() {    
-    if (isCollided() &&
-        (enemyCurrentFrame == 3 || enemyCurrentFrame == 4 ||
-        enemyCurrentFrame == 10 || enemyCurrentFrame == 11))
-            playerTakeHit();
+void Enemy::enemyIsAttacking() {
+    bool playerIsBlocking = (playerCurrentAni == "Block" || playerCurrentAni == "Block Success" || playerCurrentAni == "Take Hit") ? true : false;
 
-    if (characterDistance > enemyAttackRange - 10 &&
-        6 <= enemyCurrentFrame && enemyCurrentFrame <= 8)
-            enemyTransform->position.x += 2 * enemyDirection;
+    if (isCollided()) {
+        if (playerDirection == enemyDirection || !playerIsBlocking) {
+            if (enemyCurrentAni == "Attack" &&
+                (enemyCurrentFrame == 3 || enemyCurrentFrame == 10))
+                    playerTakeHit();
+
+            else if (enemyCurrentAni == "Dash Attack" &&
+                    (enemyCurrentFrame == 6 || enemyCurrentFrame == 7))
+                        playerTakeHit();
+            
+            else if (enemyCurrentAni == "Skill" && enemyCurrentFrame == 7)
+                        playerTakeHit();
+
+        } else if (playerCurrentAni == "Block") {
+            if (enemyCurrentAni == "Attack" &&
+                (enemyCurrentFrame == 3 || enemyCurrentFrame == 10))
+                    playerBlockSuccess();
+
+            else if (enemyCurrentAni == "Dash Attack" &&
+                    (enemyCurrentFrame == 6 || enemyCurrentFrame == 7))
+                        playerBlockSuccess();
+            
+            else if (enemyCurrentAni == "Skill" && enemyCurrentFrame == 7)
+                        playerBlockSuccess();
+        }
+    }
 }
 
 
@@ -166,18 +325,84 @@ void Enemy::enemyTakeHit() {
     enemySprite->Play("Take Hit");
     enemyCurrentAni = "Take Hit";
     isAnimating = true;
-    enemyTransform->velocity.x = -0.3 * enemyDirection;
+    lastTick = SDL_GetTicks();
+}
+
+
+void Enemy::enemyBlock() {
+    enemySprite->Play("Block");
+    enemyCurrentAni = "Block";
+    isAnimating = true;
+    lastTick = SDL_GetTicks();
+}
+
+
+void Enemy::dashAttack() {
+    enemySprite->Play("Dash Attack");
+    enemyCurrentAni = "Dash Attack";
+    enemyCurrentAttack = "Dash Attack";
+    isAnimating = true;
+    lastTick = SDL_GetTicks();
+}
+
+
+void Enemy::enemyRecover() {
+    enemySprite->Play("Recover");
+    enemyCurrentAni = "Recover";
+    isAnimating = true;
+    lastTick = SDL_GetTicks();
+}
+
+
+void Enemy::jumpBack() {
+    enemySprite->Play("Jump Back");
+    enemyCurrentAni = "Jump Back";
+    isAnimating = true;
+    lastTick = SDL_GetTicks();
+}
+
+
+void Enemy::triggerSkill() {
+    enemySprite->Play("Skill");
+    enemyCurrentAni = "Skill";
+    enemyCurrentAttack = "Skill";
+    isAnimating = true;
+    lastTick = SDL_GetTicks();
+}
+
+
+void Enemy::getTired() {
+    enemySprite->Play("Tired");
+    enemyCurrentAni = "Tired";
+    isAnimating = true;
+    enemyTransform->position.x += 87 * enemyDirection;
+    lastTick = SDL_GetTicks();
+}
+
+
+void Enemy::enemyDie() {
+    enemySprite->Play("Die");
+    enemyCurrentAni = "Die";
+    isAnimating = true;
+    enemyDead = true;
+    playerTransform->velocity.x = 0;
+    lastTick = SDL_GetTicks();
 }
 
 
 void Enemy::playerIsAttacking() {
-    if (isCollided()) {
-        if (playerCurrentAni == "Attack 1") {
-            if (playerCurrentFrame == 3)
+    bool enemyIsBlocking = (enemyCurrentAni == "Block" || enemyCurrentAni == "Take Hit") ? true : false;
+
+    if (isCollided() &&
+        (playerCurrentAni == "Attack 1" && playerCurrentFrame == 3) ||
+        (playerCurrentAni == "Attack 2" && playerCurrentFrame == 2)) {
+            if (!enemyIsBlocking)
                 enemyTakeHit();
-        } else if (playerCurrentFrame == 2)
-            enemyTakeHit();
-    }
+
+            if (enemyCurrentAni == "Block")
+                playerTransform->velocity.x = 0.5 * enemyDirection;
+            else playerTransform->velocity.x = 0;
+        }
 }
 
 
@@ -185,5 +410,23 @@ void Enemy::playerTakeHit() {
     playerSprite->Play("Take Hit");
     playerController->isAnimating = true;
     playerController->currentAni = "Take Hit";
-    playerTransform->velocity.x = 0.6 * enemyDirection;
+    playerController->lastTick = SDL_GetTicks();
+}
+
+
+void Enemy::playerBlockSuccess() {
+    playerSprite->Play("Block Success");
+    playerController->currentAni = "Block Success";
+    playerController->isAnimating = true;
+    playerController->lastTick = SDL_GetTicks();
+}
+
+
+void Enemy::playerDie() {
+    playerSprite->Play("Die");
+    playerController->currentAni = "Die";
+    playerController->isAnimating = true;
+    playerDead = true;
+    playerTransform->velocity.x = 0;
+    playerController->lastTick = SDL_GetTicks();
 }

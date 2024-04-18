@@ -57,10 +57,6 @@ class SpriteComponent : public Component {
 
         ~SpriteComponent() {    }
 
-        SDL_Rect getSrcRect() {
-            return srcRect;
-        }
-
         SDL_Rect getDestRect() {
             return destRect;
         }
