@@ -50,6 +50,9 @@ void Enemy::init() {
     playerTransform = &player.getComponent<TransformComponent>();
     playerSprite = &player.getComponent<SpriteComponent>();
     playerController = &player.getComponent<KeyboardController>();
+
+    SoundManager::Sound()->loadSound("Attack Sfx", "assets/attack.wav", SoundManager::SOUND_SFX);
+    SoundManager::Sound()->loadSound("Take Hit Sfx", "assets/take_hit.wav", SoundManager::SOUND_SFX);
 }
 
 
@@ -317,8 +320,10 @@ void Enemy::enemyTakeHit() {
     enemySprite->Play("Take Hit");
     enemyCurrentAni = "Take Hit";
     isAnimating = true;
-    Game::cameraShake(6, 3);
     lastTick = SDL_GetTicks();
+    
+    Game::cameraShake(6, 3);
+    SoundManager::Sound()->playSound("Take Hit Sfx");
 }
 
 
@@ -326,8 +331,10 @@ void Enemy::enemyBlock() {
     enemySprite->Play("Block");
     enemyCurrentAni = "Block";
     isAnimating = true;
-    Game::cameraShake(6, 3);
     lastTick = SDL_GetTicks();
+
+    Game::cameraShake(6, 3);
+    SoundManager::Sound()->playSound("Attack Sfx");
 }
 
 
@@ -412,8 +419,10 @@ void Enemy::playerTakeHit() {
     playerSprite->Play("Take Hit");
     playerController->isAnimating = true;
     playerController->currentAni = "Take Hit";
-    Game::cameraShake(6, 3);
     playerController->lastTick = SDL_GetTicks();
+    
+    Game::cameraShake(6, 3);
+    SoundManager::Sound()->playSound("Take Hit Sfx");
 }
 
 
@@ -421,8 +430,10 @@ void Enemy::playerBlockSuccess() {
     playerSprite->Play("Block Success");
     playerController->currentAni = "Block Success";
     playerController->isAnimating = true;
-    Game::cameraShake(6, 3);
     playerController->lastTick = SDL_GetTicks();
+    
+    Game::cameraShake(6, 3);
+    SoundManager::Sound()->playSound("Attack Sfx");
 }
 
 

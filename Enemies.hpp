@@ -7,6 +7,7 @@
 #include "ECS/Components.hpp"
 #include "ECS/Animation.hpp"
 #include "Game.hpp"
+#include "SoundManager.hpp"
 
 
 class Enemy {

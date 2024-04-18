@@ -5,6 +5,7 @@
 #include "ECS/Components.hpp"
 #include "Vector2D.hpp"
 #include "AssetManager.hpp"
+#include "SoundManager.hpp"
 
 
 Map *map = new Map("terrain", 1, 48, 55, 16);
@@ -38,7 +39,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     if (fullscreen)
         flags = SDL_WINDOW_FULLSCREEN;
 
-    if (SDL_Init(SDL_INIT_EVERYTHING) == 0) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) == 0 && Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == 0) {
         window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 
         renderer = SDL_CreateRenderer(window, -1, 0);
@@ -74,6 +75,9 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     player.addGroup(groupPlayers);
 
     enemy->init();
+
+    SoundManager::Sound()->loadSound("Background Music", "assets/background_music.mp3", SoundManager::SOUND_MUSIC);
+    SoundManager::Sound()->playMusic("Background Music");
 }
 
 
