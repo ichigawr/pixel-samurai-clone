@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "Game.hpp"
 #include "Enemies.hpp"
 #include "TextureManager.hpp"
@@ -17,10 +19,13 @@ SDL_Renderer* Game::renderer = nullptr;
 SDL_Event Game::event;
 
 SDL_Rect Game::camera = {0, 0, map->getScaledSize() * map->getSizeX() - WINDOW_WIDTH, map->getScaledSize() * map->getSizeY() - WINDOW_HEIGHT};
+
 SDL_Rect background = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
 
 int Game::shakeDuration = 0;
 int Game::shakeAmount = 0;
+SDL_Rect Game::overlay = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+Uint8 Game::overlayAlpha = 255;
 
 AssetManager *Game::assets = new AssetManager(&manager);
 
@@ -45,8 +50,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
         renderer = SDL_CreateRenderer(window, -1, 0);
 
         isRunning = true;
-
-    } else isRunning = false;
+    }
 
     assets->AddTexture("terrain", "assets/tileset.png");
     assets->AddTexture("background", "assets/background.png");
@@ -87,6 +91,26 @@ void Game::cameraShake(int duration, int amount) {
 }
 
 
+void Game::fadeIn(Uint8 speed) {
+    Uint8 newAlpha = overlayAlpha - speed;
+
+    if (newAlpha > overlayAlpha) // Overflow (0 - 2 = 255 > 0)
+        newAlpha = 0;
+    
+    overlayAlpha = newAlpha;
+}
+
+
+void Game::fadeOut(Uint8 speed) {
+    Uint8 newAlpha = overlayAlpha + speed;
+
+    if (newAlpha < overlayAlpha) // Overflow (255 + 2 = 1 < 255)
+        newAlpha = 255;
+    
+    overlayAlpha = newAlpha;
+}
+
+
 auto& tiles(manager.getGroup(Game::groupMap));
 auto& grasses(manager.getGroup(Game::groupGrasses));
 auto& players(manager.getGroup(Game::groupPlayers));
@@ -123,7 +147,9 @@ void Game::update() {
     if ((playerPos.x <= 240 || playerPos.x >= 2352) && playerPos.y <= 768) {
         player.getComponent<TransformComponent>().velocity.x = 0;
         player.getComponent<TransformComponent>().velocity.y = 5;
-    }
+
+    } else if (playerPos.y > 768)
+        player.getComponent<KeyboardController>().health = -2;
 
     camera.x = player.getComponent<TransformComponent>().position.x - WINDOW_WIDTH / 2;
     camera.y = player.getComponent<TransformComponent>().position.y - WINDOW_HEIGHT / 2 - 150;
@@ -177,6 +203,18 @@ void Game::render() {
 
     for (auto& g : grasses)
         g->draw();
+
+    if (enemy->playerDead || enemy->enemyDead) {
+        fadeOut(5);
+
+        if (overlayAlpha == 255)
+            enemy->reset();
+
+    } else fadeIn(5);
+    
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, overlayAlpha);
+    SDL_RenderFillRect(renderer, &overlay);
 
     SDL_RenderPresent(renderer);
 }

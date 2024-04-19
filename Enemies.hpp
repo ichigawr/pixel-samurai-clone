@@ -85,4 +85,6 @@ class Enemy {
         void playerTakeHit();
         void playerBlockSuccess();
         void playerDie();
+
+        void reset();
 };

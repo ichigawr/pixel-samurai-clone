@@ -38,10 +38,15 @@ class Game {
         static bool isRunning;
         static SDL_Rect camera;
         static AssetManager *assets;
+
         static int shakeDuration;
         static int shakeAmount;
+        static SDL_Rect overlay;
+        static Uint8 overlayAlpha;
         
         static void cameraShake(int duration, int magnitude);
+        static void fadeIn(Uint8 speed);
+        static void fadeOut(Uint8 speed);
 
         enum groupLabels : std::size_t {
             groupMap,

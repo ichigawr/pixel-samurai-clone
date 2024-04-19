@@ -27,8 +27,8 @@ void Enemy::init() {
     };
 
     coolDown = {
-        {"Block"      ,  7000},
-        {"Skill"      , 13000}
+        {"Block"      , 6500},
+        {"Skill"      , 9000}
     };
 
     attackRanges = {
@@ -39,7 +39,7 @@ void Enemy::init() {
 
     enemyHealth = MAX_HEALTH;
 
-    enemy.addComponent<TransformComponent>(DEFAULT_X_POSITION + 350, DEFAULT_Y_POSITION, 1, 4);
+    enemy.addComponent<TransformComponent>(DEFAULT_X_POSITION + 400, DEFAULT_Y_POSITION, 1, 4);
     enemy.addComponent<SpriteComponent>("enemy", true, enemyAnimations);
     enemy.addGroup(Game::groupEnemies);
 
@@ -96,7 +96,7 @@ void Enemy::update() {
     for (auto& x : coolDownReady) 
         x.second = (SDL_GetTicks() - coolDownStart[x.first] >= coolDown[x.first]) ? true : false;
 
-    if (enemyHealth > 16)
+    if (enemyHealth > 18)
         coolDownReady["Skill"] = false;
 
     if (coolDownReady["Skill"])
@@ -445,4 +445,35 @@ void Enemy::playerDie() {
     playerDead = true;
     playerTransform->velocity.x = 0;
     playerController->lastTick = SDL_GetTicks();
+}
+
+
+void Enemy::reset() {
+    enemyTransform->position.x = DEFAULT_X_POSITION + 400;
+    enemyTransform->position.y = DEFAULT_Y_POSITION;
+    playerTransform->position.x = DEFAULT_X_POSITION;
+    playerTransform->position.y = DEFAULT_Y_POSITION;
+
+    enemyHealth = MAX_HEALTH;
+    playerController->health = 10;
+    playerDead = false;
+    enemyDead = false;
+
+    enemySprite->Play("Idle");
+    playerSprite->Play("Idle");
+    enemyCurrentAni = "Idle";
+    playerCurrentAni = "Idle";
+
+    skillReady = false;
+    enemyCurrentAttack = "";
+    coolDownReady["Block"] = false;
+    coolDownReady["Skill"] = false;
+    coolDownStart["Block"] = 0;
+    coolDownStart["Skill"] = 0;
+
+    enemyDirection = 1;
+    playerDirection = 1;
+
+    lastTick = 0;
+    isAnimating = false;
 }
