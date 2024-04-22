@@ -180,13 +180,6 @@ void Enemy::Animate() {
             enemyTransform->velocity.x = 7.5 * enemyDirection;
         else enemyTransform->velocity.x = 0;
 
-    } else if (enemyCurrentAni == "Take Hit") {
-        if (isCollided() &&
-            (playerCurrentAni == "Attack 1" && playerCurrentFrame == 3) ||
-            (playerCurrentAni == "Attack 2" && playerCurrentFrame == 2))
-                enemyTransform->velocity.x = -1 * enemyDirection;
-        else enemyTransform->velocity.x = 0;
-
     } else if (enemyCurrentAni == "Jump Back") {
         if (4 <= enemyCurrentFrame && enemyCurrentFrame <= 6)
             enemyTransform->velocity.x = -2 * enemyDirection;
@@ -196,23 +189,6 @@ void Enemy::Animate() {
         if (enemyCurrentFrame == 7)
             enemyTransform->velocity.x = (characterDistance + 140) / enemyTransform->speed * enemyDirection;
         else enemyTransform->velocity.x = 0;
-    }
-    
-    if ((playerCurrentAni == "Block" || playerCurrentAni == "Block Success")) {
-        if (isCollided() &&
-            ((enemyCurrentAni == "Attack" && (enemyCurrentFrame == 3 || enemyCurrentFrame == 10)) ||
-            (enemyCurrentAni == "Dash Attack" && (enemyCurrentFrame == 6 || enemyCurrentFrame == 7)) ||
-            (enemyCurrentAni == "Skill" && enemyCurrentFrame == 7)))
-                playerTransform->velocity.x = 0.7 * enemyDirection;
-        else playerTransform->velocity.x = 0;
-
-    } else if (playerCurrentAni == "Take Hit") {
-        if (isCollided() &&
-            ((enemyCurrentAni == "Attack" && (enemyCurrentFrame == 3 || enemyCurrentFrame == 10)) ||
-            (enemyCurrentAni == "Dash Attack" && (enemyCurrentFrame == 6 || enemyCurrentFrame == 7)) ||
-            (enemyCurrentAni == "Skill" && enemyCurrentFrame == 7)))
-                playerTransform->velocity.x = 1 * enemyDirection;
-        else playerTransform->velocity.x = 0;
     }
 
     Uint32 aniTime = enemyAnimations[enemyCurrentAni].speed * enemyAnimations[enemyCurrentAni].frames;
@@ -287,31 +263,38 @@ void Enemy::attackPlayer() {
 void Enemy::enemyIsAttacking() {
     bool playerIsBlocking = (playerCurrentAni == "Block" || playerCurrentAni == "Block Success" || playerCurrentAni == "Take Hit") ? true : false;
 
-    if (isCollided()) {
-        if (playerDirection == enemyDirection || !playerIsBlocking) {
-            if (enemyCurrentAni == "Attack" &&
-                (enemyCurrentFrame == 3 || enemyCurrentFrame == 10))
-                    playerTakeHit();
+    auto isAttacking = [&]() -> bool {
+        if (enemyCurrentAni == "Attack" &&
+            (enemyCurrentFrame == 3 || enemyCurrentFrame == 10))
+                return true;
 
-            else if (enemyCurrentAni == "Dash Attack" &&
-                    (enemyCurrentFrame == 6 || enemyCurrentFrame == 7))
-                        playerTakeHit();
-            
-            else if (enemyCurrentAni == "Skill" && enemyCurrentFrame == 7)
-                        playerTakeHit();
+        if (enemyCurrentAni == "Dash Attack" &&
+            (enemyCurrentFrame == 6 || enemyCurrentFrame == 7))
+                return true;
+        
+        if (enemyCurrentAni == "Skill" && enemyCurrentFrame == 7)
+            return true;
+        
+        return false;
+    };
 
-        } else if (playerCurrentAni == "Block") {
-            if (enemyCurrentAni == "Attack" &&
-                (enemyCurrentFrame == 3 || enemyCurrentFrame == 10))
-                    playerBlockSuccess();
+    if (isCollided() && isAttacking()) {
+        if (playerDirection == enemyDirection || !playerIsBlocking)
+            playerTakeHit();
 
-            else if (enemyCurrentAni == "Dash Attack" &&
-                    (enemyCurrentFrame == 6 || enemyCurrentFrame == 7))
-                        playerBlockSuccess();
-            
-            else if (enemyCurrentAni == "Skill" && enemyCurrentFrame == 7)
-                        playerBlockSuccess();
-        }
+        else if (playerCurrentAni == "Block")
+            playerBlockSuccess();
+    }
+    
+    if ((playerCurrentAni == "Block" || playerCurrentAni == "Block Success")) {
+        if (isCollided() && isAttacking())
+                playerTransform->velocity.x = 0.7 * enemyDirection;
+        else playerTransform->velocity.x = 0;
+
+    } else if (playerCurrentAni == "Take Hit") {
+        if (isCollided() && isAttacking())
+                playerTransform->velocity.x = 1 * enemyDirection;
+        else playerTransform->velocity.x = 0;
     }
 }
 
@@ -395,24 +378,38 @@ void Enemy::enemyDie() {
 void Enemy::playerIsAttacking() {
     bool enemyIsBlocking = (enemyCurrentAni == "Block" || enemyCurrentAni == "Take Hit" || enemyCurrentAni == "Skill") ? true : false;
 
-    if (isCollided() &&
-        (playerCurrentAni == "Attack 1" && playerCurrentFrame == 3) ||
-        (playerCurrentAni == "Attack 2" && playerCurrentFrame == 2)) {
-            srand(time(0));
+    auto isAttacking = [&]() -> bool {
+        if (playerCurrentAni == "Attack 1" && playerCurrentFrame == 3)
+                return true;
 
-            if ((rand() % 100 <= 70 && coolDownReady["Block"]) ||
-                enemyCurrentAni == "Tired" || enemyCurrentAni == "Recover")
-                    enemyBlock();
+        if (playerCurrentAni == "Attack 2" && playerCurrentFrame == 2)
+                return true;
+        
+        return false;
+    };
 
-            if (!enemyIsBlocking)
-                enemyTakeHit();
+    if (isCollided() && isAttacking()) {
+        srand(time(0));
 
-            if (enemyCurrentAni == "Block") {
+        if ((rand() % 100 <= 70 && coolDownReady["Block"]) ||
+            enemyCurrentAni == "Tired" || enemyCurrentAni == "Recover")
                 enemyBlock();
-                playerTransform->velocity.x = 0.5 * enemyDirection;
 
-            } else playerTransform->velocity.x = 0;
-        }
+        if (!enemyIsBlocking)
+            enemyTakeHit();
+
+        if (enemyCurrentAni == "Block") {
+            enemyBlock();
+            playerTransform->velocity.x = 0.5 * enemyDirection;
+
+        } else playerTransform->velocity.x = 0;
+    }
+
+    if (enemyCurrentAni == "Take Hit") {
+        if (isCollided() && isAttacking())
+            enemyTransform->velocity.x = -1 * enemyDirection;
+        else enemyTransform->velocity.x = 0;
+    }
 }
 
 
