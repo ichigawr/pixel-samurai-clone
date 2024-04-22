@@ -10,7 +10,7 @@ extern Manager manager;
 
 
 Map::Map(std::string texID, int mScale, int tSize, int mSizeX, int mSizeY)
-    : textureID(texID), mapScale(mScale), tileSize(tSize), sizeX(mSizeX), sizeY(mSizeY){
+    : textureID(texID), mapScale(mScale), tileSize(tSize), sizeX(mSizeX), sizeY(mSizeY) {
         scaledSize = mScale * tSize;
     }
 
