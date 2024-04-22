@@ -20,7 +20,8 @@ class KeyboardController : public Component {
         std::string currentAni;
         std::string currentAttack = "Attack 1";
 
-        int health = 10;
+        const int MAX_HEALTH = 10;
+        int health = MAX_HEALTH;
         int enemyDamage = 2;
 
         void init() override {

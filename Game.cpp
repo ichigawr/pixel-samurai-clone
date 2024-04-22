@@ -85,6 +85,12 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 }
 
 
+auto& tiles(manager.getGroup(Game::groupMap));
+auto& grasses(manager.getGroup(Game::groupGrasses));
+auto& players(manager.getGroup(Game::groupPlayers));
+auto& enemies(manager.getGroup(Game::groupEnemies));
+
+
 void Game::cameraShake(int duration, int amount) {
     shakeDuration = duration;
     shakeAmount = amount;
@@ -111,10 +117,60 @@ void Game::fadeOut(Uint8 speed) {
 }
 
 
-auto& tiles(manager.getGroup(Game::groupMap));
-auto& grasses(manager.getGroup(Game::groupGrasses));
-auto& players(manager.getGroup(Game::groupPlayers));
-auto& enemies(manager.getGroup(Game::groupEnemies));
+const SDL_Rect PLAYER_HEALTHBAR = {0, 0, 120, 24};
+const SDL_Rect ENEMY_HEALTHBAR = {0, 0, 408, 24};
+int lastPLayerHealthWidth = PLAYER_HEALTHBAR.w - 12;
+int lastEnemyHealthWidth = ENEMY_HEALTHBAR.w - 12;
+
+
+void Game::drawHealthBar() {
+    const int playerMaxHealth = player.getComponent<KeyboardController>().MAX_HEALTH;
+    const int enemyMaxHealth = enemy->MAX_HEALTH;
+    int playerCurrentHealth = player.getComponent<KeyboardController>().health;
+    int enemyCurrentHealth = enemy->enemyHealth;
+
+    // Player health bar
+    SDL_Rect playerHealthBar_firstLayer = {44, 24, PLAYER_HEALTHBAR.w, PLAYER_HEALTHBAR.h};
+    SDL_Rect playerHealthBar_secondLayer = {50, 30, PLAYER_HEALTHBAR.w - 12, PLAYER_HEALTHBAR.h - 12};
+    SDL_Rect playerHealthBar_thirdLayer = {50, 30, lastPLayerHealthWidth, PLAYER_HEALTHBAR.h - 12};
+    SDL_Rect playerHealthBar_forthLayer = {50, 30, (PLAYER_HEALTHBAR.w - 12) * playerCurrentHealth / playerMaxHealth, PLAYER_HEALTHBAR.h - 12};
+
+    if (lastPLayerHealthWidth > playerHealthBar_forthLayer.w)
+        lastPLayerHealthWidth--;
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &playerHealthBar_firstLayer);
+
+    SDL_SetRenderDrawColor(renderer, 122, 90, 77, 255);
+    SDL_RenderFillRect(renderer, &playerHealthBar_secondLayer);
+
+    SDL_SetRenderDrawColor(renderer, 187, 187, 187, 255);
+    SDL_RenderFillRect(renderer, &playerHealthBar_thirdLayer);
+
+    SDL_SetRenderDrawColor(renderer, 122, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &playerHealthBar_forthLayer);
+
+    // Enemy health bar
+    SDL_Rect enemyHealthBar_firstLayer = {308, 24, ENEMY_HEALTHBAR.w, ENEMY_HEALTHBAR.h};
+    SDL_Rect enemyHealthBar_secondLayer = {314, 30, ENEMY_HEALTHBAR.w - 12, ENEMY_HEALTHBAR.h - 12};
+    SDL_Rect enemyHealthBar_thirdLayer = {314, 30, lastEnemyHealthWidth, ENEMY_HEALTHBAR.h - 12};
+    SDL_Rect enemyHealthBar_forthLayer = {314, 30, (ENEMY_HEALTHBAR.w - 12) * enemyCurrentHealth / enemyMaxHealth, ENEMY_HEALTHBAR.h - 12};
+
+    if (lastEnemyHealthWidth > enemyHealthBar_forthLayer.w)
+        lastEnemyHealthWidth--;
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &enemyHealthBar_firstLayer);
+
+    SDL_SetRenderDrawColor(renderer, 122, 90, 77, 255);
+    SDL_RenderFillRect(renderer, &enemyHealthBar_secondLayer);
+
+    SDL_SetRenderDrawColor(renderer, 187, 187, 187, 255);
+    SDL_RenderFillRect(renderer, &enemyHealthBar_thirdLayer);
+
+    SDL_SetRenderDrawColor(renderer, 122, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &enemyHealthBar_forthLayer);
+}
 
 
 void Game::handleEvents() {
@@ -203,9 +259,11 @@ void Game::render() {
 
     for (auto& g : grasses)
         g->draw();
+    
+    drawHealthBar();
 
     if (enemy->playerDead || enemy->enemyDead) {
-        fadeOut(5);
+        fadeOut(2);
 
         if (overlayAlpha == 255)
             enemy->reset();
@@ -223,5 +281,7 @@ void Game::render() {
 void Game::clean() {
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
+    IMG_Quit();
+    Mix_Quit();
     SDL_Quit();
 }

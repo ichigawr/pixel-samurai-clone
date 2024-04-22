@@ -455,7 +455,7 @@ void Enemy::reset() {
     playerTransform->position.y = DEFAULT_Y_POSITION;
 
     enemyHealth = MAX_HEALTH;
-    playerController->health = 10;
+    playerController->health = playerController->MAX_HEALTH;
     playerDead = false;
     enemyDead = false;
 

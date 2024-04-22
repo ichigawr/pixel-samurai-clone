@@ -47,6 +47,7 @@ class Game {
         static void cameraShake(int duration, int magnitude);
         static void fadeIn(Uint8 speed);
         static void fadeOut(Uint8 speed);
+        static void drawHealthBar();
 
         enum groupLabels : std::size_t {
             groupMap,
