@@ -44,7 +44,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     if (fullscreen)
         flags = SDL_WINDOW_FULLSCREEN;
 
-    if (SDL_Init(SDL_INIT_EVERYTHING) == 0 && Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == 0) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) == 0 && Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == 0 && TTF_Init() == 0) {
         window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 
         renderer = SDL_CreateRenderer(window, -1, 0);
@@ -56,6 +56,9 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     assets->AddTexture("background", "assets/maps/background.png");
     assets->AddTexture("player", "assets/animations/player_animations.png");
     assets->AddTexture("enemy", "assets/animations/boss1_animations.png");
+
+    assets->AddFont("Terminal 32", "assets/fonts/Terminal.ttf", 32);
+    assets->AddFont("Terminal 18", "assets/fonts/Terminal.ttf", 18);
 
     map->LoadMap("assets/maps/map.map");
     grass->LoadMap("assets/maps/grass.map");

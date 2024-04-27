@@ -6,3 +6,4 @@
 #include "KeyboardController.hpp"
 #include "ColliderComponent.hpp"
 #include "TileComponent.hpp"
+#include "UILabel.hpp"
