@@ -52,13 +52,13 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
         isRunning = true;
     }
 
-    assets->AddTexture("terrain", "assets/tileset.png");
-    assets->AddTexture("background", "assets/background.png");
-    assets->AddTexture("player", "assets/player_animations.png");
-    assets->AddTexture("enemy", "assets/boss1_animations.png");
+    assets->AddTexture("terrain", "assets/maps/tileset.png");
+    assets->AddTexture("background", "assets/maps/background.png");
+    assets->AddTexture("player", "assets/animations/player_animations.png");
+    assets->AddTexture("enemy", "assets/animations/boss1_animations.png");
 
-    map->LoadMap("assets/map.map");
-    grass->LoadMap("assets/grass.map");
+    map->LoadMap("assets/maps/map.map");
+    grass->LoadMap("assets/maps/grass.map");
         
     std::map<std::string, Animation> playerAnimations = {
         {"Attack 1"     , Animation(4, 100, 126, 57,  -3, -36)},
@@ -80,7 +80,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 
     enemy->init();
 
-    SoundManager::Sound()->loadSound("Background Music", "assets/background_music.mp3", SoundManager::SOUND_MUSIC);
+    SoundManager::Sound()->loadSound("Background Music", "assets/sounds/background_music.mp3", SoundManager::SOUND_MUSIC);
     SoundManager::Sound()->playMusic("Background Music");
 }
 

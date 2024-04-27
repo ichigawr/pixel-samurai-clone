@@ -51,8 +51,8 @@ void Enemy::init() {
     playerSprite = &player.getComponent<SpriteComponent>();
     playerController = &player.getComponent<KeyboardController>();
 
-    SoundManager::Sound()->loadSound("Attack Sfx", "assets/attack.wav", SoundManager::SOUND_SFX);
-    SoundManager::Sound()->loadSound("Take Hit Sfx", "assets/take_hit.wav", SoundManager::SOUND_SFX);
+    SoundManager::Sound()->loadSound("Attack Sfx", "assets/sounds/attack.wav", SoundManager::SOUND_SFX);
+    SoundManager::Sound()->loadSound("Take Hit Sfx", "assets/sounds/take_hit.wav", SoundManager::SOUND_SFX);
 }
 
 
