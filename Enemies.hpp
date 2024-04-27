@@ -60,7 +60,7 @@ class Enemy {
         std::unordered_map<std::string, int> coolDown;
 
         Enemy(Manager* mgr, Entity& plyr);
-        ~Enemy() = default;
+        ~Enemy();
 
         void init();
         void update();

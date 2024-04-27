@@ -279,6 +279,13 @@ void Game::render() {
 
 
 void Game::clean() {
+    manager.refresh();
+
+    delete map;
+    delete grass;
+    delete assets;
+    delete enemy;
+    
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     IMG_Quit();

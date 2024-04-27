@@ -6,7 +6,14 @@ AssetManager::AssetManager(Manager* man)
     : manager(man) {    }
 
 
-AssetManager::~AssetManager() {    }
+AssetManager::~AssetManager() {
+    manager = nullptr;
+    
+    for (auto& tex : textures) {
+        SDL_DestroyTexture(tex.second);
+        tex.second = nullptr;
+    }
+}
 
 
 void AssetManager::AddTexture(std::string id, const char* path) {

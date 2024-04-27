@@ -5,6 +5,11 @@ Enemy::Enemy(Manager* mgr, Entity& plyr)
             : manager(mgr), player(plyr), enemy(manager->addEntity()) {    }
 
 
+Enemy::~Enemy() {
+    manager = nullptr;
+}
+
+
 void Enemy::init() {
     enemyAnimations = {
         {"Attack"     , Animation(17, 100, 147, 78,   0,  -48)},
