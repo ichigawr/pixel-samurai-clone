@@ -27,6 +27,7 @@ Horizon's Fall is a Souls-like game developed as a part of the Advanced Programm
 ## Project Structure
 ```bash
 [horizon_s_fall]
+│
 │   README.md
 │
 ├── src
@@ -75,9 +76,6 @@ Horizon's Fall is a Souls-like game developed as a part of the Advanced Programm
 │   Vector2D.cpp
 │   Vector2D.hpp
 │   main.cpp
-│
-│   horizon_s_fall.exe
-│   Makefile
 │
 │   ...
 ```
