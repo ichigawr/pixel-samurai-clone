@@ -33,6 +33,7 @@ class Game {
             return isRunning;
         }
         
+        static bool gameStarted;
         static SDL_Renderer *renderer;
         static SDL_Event event;
         static bool isRunning;
@@ -54,6 +55,7 @@ class Game {
             groupGrasses,
             groupColliders,
             groupPlayers,
-            groupEnemies
+            groupEnemies,
+            groupLabels
         };
 };

@@ -19,13 +19,16 @@ class UILabel : public Component {
         SDL_Texture* texture;
 
     public:
-        UILabel(int xpos, int ypos, std::string text, std::string fontFamily, SDL_Color color)
-            : text(text), fontFamily(fontFamily), color(color) {
-                position.x = xpos;
-                position.y = ypos;
+        UILabel(int xpos, int ypos, std::string text, std::string fontFamily, SDL_Color& color) {
+            position.x = 0;
+            position.y = 0;
 
-                SetLabelText(text, fontFamily);
-            }
+            this->text = text;
+            this->fontFamily = fontFamily;
+            this->color = color;
+
+            SetLabelText(text, fontFamily);
+        }
 
         ~UILabel() {
             SDL_DestroyTexture(texture);
@@ -42,13 +45,13 @@ class UILabel : public Component {
         }
 
         void SetLabelText(std::string text, std::string fontFamily) {
-            SDL_Surface* surf = TTF_RenderText_Blended(Game::assets->GetFont(fontFamily), text.c_str(), color);
-            texture = SDL_CreateTextureFromSurface(Game::renderer, surf);
-            SDL_FreeSurface(surf);
+            SDL_Surface* surface = TTF_RenderText_Blended(Game::assets->GetFont(fontFamily), text.c_str(), color);
+            texture = SDL_CreateTextureFromSurface(Game::renderer, surface);
+            SDL_FreeSurface(surface);
 
             SDL_QueryTexture(texture, nullptr, nullptr, &position.w, &position.h);
         }
-
+        
         void draw() override {
             SDL_RenderCopy(Game::renderer, texture, nullptr, &position);
         }

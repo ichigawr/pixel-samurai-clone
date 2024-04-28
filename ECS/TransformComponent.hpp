@@ -28,6 +28,9 @@ class TransformComponent : public Component {
             position.y = DEFAULT_Y_POSITION;
             scale = sc;
             speed = sp;
+
+            height *= scale;
+            width *= scale;
         }
     
         TransformComponent(float x, float y) {
@@ -39,6 +42,9 @@ class TransformComponent : public Component {
             position.y = y;
             scale = sc;
             speed = sp;
+
+            height *= scale;
+            width *= scale;
         }
 
         void init() override {

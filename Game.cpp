@@ -8,7 +8,10 @@
 #include "Vector2D.hpp"
 #include "AssetManager.hpp"
 #include "SoundManager.hpp"
+#include "Menu.hpp"
 
+
+bool Game::gameStarted = false;
 
 Map *map = new Map("terrain", 1, 48, 55, 16);
 Map *grass = new Map("terrain", 1, 48, 55, 16);
@@ -28,6 +31,7 @@ SDL_Rect Game::overlay = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
 Uint8 Game::overlayAlpha = 255;
 
 AssetManager *Game::assets = new AssetManager(&manager);
+Menu *menu = new Menu();
 
 bool Game::isRunning = false;
 
@@ -58,6 +62,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     assets->AddTexture("enemy", "assets/animations/boss1_animations.png");
 
     assets->AddFont("Terminal 32", "assets/fonts/Terminal.ttf", 32);
+    assets->AddFont("Terminal 20", "assets/fonts/Terminal.ttf", 20);
     assets->AddFont("Terminal 18", "assets/fonts/Terminal.ttf", 18);
 
     map->LoadMap("assets/maps/map.map");
@@ -82,9 +87,9 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     player.addGroup(groupPlayers);
 
     enemy->init();
+    menu->init();
 
     SoundManager::Sound()->loadSound("Background Music", "assets/sounds/background_music.mp3", SoundManager::SOUND_MUSIC);
-    SoundManager::Sound()->playMusic("Background Music");
 }
 
 
@@ -196,6 +201,11 @@ void Game::handleEvents() {
 
 
 void Game::update() {
+    if (!gameStarted) {
+        menu->update();
+        return;
+    }
+    
     Vector2D playerPos = player.getComponent<TransformComponent>().position;
     
     manager.refresh();
@@ -247,6 +257,11 @@ void Game::update() {
 
 
 void Game::render() {
+    if (!gameStarted) {
+        menu->render();
+        return;
+    }
+
     SDL_RenderClear(renderer);
 
     TextureManager::Draw(assets->GetTexture("background"), background, background, SDL_FLIP_NONE);
@@ -265,6 +280,7 @@ void Game::render() {
     
     drawHealthBar();
 
+    // Fade in/out
     if (enemy->playerDead || enemy->enemyDead) {
         fadeOut(2);
 
@@ -283,11 +299,12 @@ void Game::render() {
 
 void Game::clean() {
     manager.refresh();
-
+    
     delete map;
     delete grass;
-    delete assets;
     delete enemy;
+    delete assets;
+    delete menu;
     
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);

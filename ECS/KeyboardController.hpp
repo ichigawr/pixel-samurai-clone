@@ -58,20 +58,10 @@ class KeyboardController : public Component {
                 int direction = (sprite->spriteFlip == SDL_FLIP_NONE) ? 1 : -1;
 
                 switch (Game::event.key.keysym.sym) {
-                    case SDLK_w:
-                        transform->velocity.y = -1;
-                        sprite->Play("Run");
-                        break;
-
                     case SDLK_a:
                         transform->velocity.x = -1;
                         sprite->Play("Run");
                         sprite->spriteFlip = SDL_FLIP_HORIZONTAL;
-                        break;
-
-                    case SDLK_s:
-                        transform->velocity.y = 1;
-                        sprite->Play("Run");
                         break;
 
                     case SDLK_d:
@@ -117,18 +107,8 @@ class KeyboardController : public Component {
 
             if (health > 0 && Game::event.type == SDL_KEYUP) {
                 switch (Game::event.key.keysym.sym) {
-                    case SDLK_w:
-                        transform->velocity.y = 0;
-                        sprite->Play("Idle");
-                        break;
-
                     case SDLK_a:
                         transform->velocity.x = 0;
-                        sprite->Play("Idle");
-                        break;
-
-                    case SDLK_s:
-                        transform->velocity.y = 0;
                         sprite->Play("Idle");
                         break;
 
