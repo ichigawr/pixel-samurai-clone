@@ -84,7 +84,7 @@ Horizon's Fall is a Souls-like game developed as a part of the Advanced Programm
 # Installation
 
 ## Play Game
-Download the [Compiled version](https://github.com/ichigoih/horizon_s_fall/releases/tag/v1.0.0) of the game to start playing immediately.
+Download the [Compiled version](https://github.com/ichigoih/horizon_s_fall/releases/tag/v1.0.1) of the game to start playing immediately.
 
 ## Development
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
@@ -95,7 +95,7 @@ What things you need to install the game:
 - GNU make
 
 ### Installing
-1. Clone this repository to your device or [Download Source code (.zip or .tar.gz)](https://github.com/ichigoih/horizon_s_fall/releases/tag/v1.0.0).
+1. Clone this repository to your device or [Download Source code (.zip or .tar.gz)](https://github.com/ichigoih/horizon_s_fall/releases/tag/v1.0.1).
 2. Navigate to the project directory.
 3. Compile the project using Makefile.
 
