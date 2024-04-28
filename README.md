@@ -1,20 +1,3 @@
-## Appendix
-- [Horizon's Fall](#horizons-fall)
-  - [Overview](#overview)
-  - [Features](#features)
-  - [Credits](#credits)
-  - [Project Structure](#project-structure)
-
-- [Installation](#installation)
-  - [Play Game](#play-game)
-  - [Development](#development)
-  - [How To Play](#how-to-play)
-
-- [Contributors](#contributors)
-
-- [License](#license)
-
-
 # Horizon's Fall
 
 ## Overview
