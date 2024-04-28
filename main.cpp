@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
     }
 
     game->clean();
+    delete game;
 
     return EXIT_SUCCESS;
 }

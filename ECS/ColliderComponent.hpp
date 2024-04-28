@@ -35,7 +35,6 @@ class ColliderComponent : public Component {
 
             transform = &entity->getComponent<TransformComponent>();
 
-            // texture = TextureManager::LoadTexture("assets/coltex.png");
             srcRect = {0, 0, 32, 32};
             destRect = {collider.x, collider.y, collider.w, collider.h};
         }
