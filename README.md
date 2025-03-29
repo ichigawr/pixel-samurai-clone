@@ -1,4 +1,4 @@
-# Horizon's Fall
+# Pixel Samurai Clone
 
 ## Overview
 Pixel Samurai Clone is a clone of Pixel Samurai, a Souls-like game from ArtofKings, developed using SDL2. It is a major assignment for the Advanced Programming course at the University of Engineering and Technology, Vietnam National University, Hanoi, focusing on game development using SDL2.
