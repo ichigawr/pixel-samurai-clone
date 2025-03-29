@@ -1,7 +1,7 @@
 # Horizon's Fall
 
 ## Overview
-Horizon's Fall is a Souls-like game developed as a part of the Advanced Programming course at the University of Engineering and Technology, Vietnam National University, Hanoi. It serves as a major assignment for the course, focusing on game development using SDL2.
+Pixel Samurai Clone is a clone of Pixel Samurai, a Souls-like game from ArtofKings, developed using SDL2. It is a major assignment for the Advanced Programming course at the University of Engineering and Technology, Vietnam National University, Hanoi, focusing on game development using SDL2.
 
 [Watch introduction video in Vietnamese.](https://youtu.be/xC5n-PCGXZM)
 
@@ -22,64 +22,6 @@ Horizon's Fall is a Souls-like game developed as a part of the Advanced Programm
 ### Code References:
 - The game development techniques and code examples were learned from the tutorial series [How To Make A Game In C++ & SDL2 From Scratch!](https://youtube.com/playlist?list=PLhfAbcv9cehhkG7ZQK0nfIGJC_C-wSLrx&si=X97uRO9hj2bBhFcF) by the YouTube channel [Let's Make Games](https://youtube.com/@CarlBirch).
 - Code snippets and implementation ideas were also referenced from the repository [BirchEngine](https://github.com/carlbirch/BirchEngine) by [carlbirch](https://github.com/carlbirch).
-
-
-## Project Structure
-```bash
-[horizon_s_fall]
-│
-│   README.md
-│
-├── src
-│   ├── include
-│   │       ...
-│   └── lib
-│           ...
-│
-├── assets
-│   ├── animations
-│   │       ...
-│   ├── fonts
-│   │       ...
-│   ├── maps
-│   │       ...
-│   ├── sounds
-│   │       ...
-│   │   ...
-│
-├── ECS
-│   │   Animation.hpp
-│   │   ColliderComponent.hpp
-│   │   Components.hpp
-│   │   ECS.cpp
-│   │   ECS.hpp
-│   │   KeyboardController.hpp
-│   │   SpriteComponent.hpp
-│   │   TileComponent.hpp
-│   │   TransformComponent.hpp
-│   │   UILabel.hpp
-│
-│   AssetManager.cpp
-│   AssetManager.hpp
-│   Enemies.cpp
-│   Enemies.hpp
-│   Game.cpp
-│   Game.hpp
-│   Map.cpp
-│   Map.hpp
-│   Menu.cpp
-│   Menu.hpp
-│   SoundManager.cpp
-│   SoundManager.hpp
-│   TextureManager.cpp
-│   TextureManager.hpp
-│   Vector2D.cpp
-│   Vector2D.hpp
-│   main.cpp
-│
-│   ...
-```
-
 
 # Installation
 
